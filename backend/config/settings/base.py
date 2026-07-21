@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     "apps.media",
     "apps.profiles",
     "apps.organizations",
+    "apps.projects",
+    "apps.applications",
 ]
 
 MIDDLEWARE = [
