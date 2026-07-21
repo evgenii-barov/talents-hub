@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import User
+from .models import ExternalIdentity, User, UserRole
 
 
 @admin.register(User)
@@ -30,3 +30,17 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {"classes": ("wide",), "fields": ("email", "password1", "password2")}),
     )
+
+
+@admin.register(UserRole)
+class UserRoleAdmin(admin.ModelAdmin):
+    list_display = ("user", "role", "created_at")
+    list_filter = ("role",)
+    search_fields = ("user__email",)
+
+
+@admin.register(ExternalIdentity)
+class ExternalIdentityAdmin(admin.ModelAdmin):
+    list_display = ("user", "provider", "provider_account_id", "linked_at")
+    list_filter = ("provider",)
+    search_fields = ("user__email", "provider_account_id", "email_at_provider")

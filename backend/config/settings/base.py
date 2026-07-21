@@ -34,6 +34,9 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.yandex",
     "apps.common",
     "apps.users",
+    "apps.taxonomy",
+    "apps.media",
+    "apps.profiles",
 ]
 
 MIDDLEWARE = [

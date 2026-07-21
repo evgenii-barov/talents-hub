@@ -1,0 +1,43 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+:root {
+  --color-background: #fafafa;
+  --color-surface: #ffffff;
+  --color-ink: #101b38;
+  --color-muted: #737373;
+  --color-border: #e5e5e5;
+  --color-primary: #2563eb;
+  --color-hero: #101b38;
+  --color-hero-card: #172959;
+  --color-soft-blue: #e8f0ff;
+  --color-soft-green: #ecfdf5;
+  --color-green: #10b981;
+  --color-hero-muted: #c8d6f5;
+  --color-footer-muted: #8ba4d4;
+  --color-card-blue-border: #d8e3fa;
+}
+
+@layer base {
+  html,
+  body {
+    min-height: 100%;
+  }
+
+  body {
+    background: var(--color-background);
+    color: var(--color-ink);
+  }
+
+  .font-geist {
+    font-family: var(--font-geist-sans), Arial, sans-serif;
+  }
+
+  .font-inter {
+    font-family: var(--font-inter), Arial, sans-serif;
+  }
+
+  .font-geist-mono {
+    font-family: var(--font-geist-mono), monospace;
+  }
+}

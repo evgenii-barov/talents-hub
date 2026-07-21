@@ -41,6 +41,8 @@
 - [MVP: продуктовые границы](docs/mvp.md)
 - [Целевая архитектура](docs/architecture.md)
 - [План старта разработки](docs/roadmap.md)
+- [Основная модель данных](docs/data-model.md)
+- [Frontend: запуск и соглашения](frontend/README.md)
 
 ## Ветки
 

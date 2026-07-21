@@ -56,6 +56,17 @@ services:
       retries: 10
       start_period: 15s
 
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+
   celery:
     build:
       context: ./backend

@@ -1,0 +1,72 @@
+[
+  {
+    "model": "taxonomy.category",
+    "pk": "00000000-0000-0000-0000-000000000101",
+    "fields": {"created_at": "2026-07-21T00:00:00Z", "updated_at": "2026-07-21T00:00:00Z", "name": "Digital", "slug": "digital", "description": "Digital products and technology", "is_active": true, "sort_order": 10}
+  },
+  {
+    "model": "taxonomy.category",
+    "pk": "00000000-0000-0000-0000-000000000102",
+    "fields": {"created_at": "2026-07-21T00:00:00Z", "updated_at": "2026-07-21T00:00:00Z", "name": "Education", "slug": "education", "description": "Learning and skills development", "is_active": true, "sort_order": 20}
+  },
+  {
+    "model": "taxonomy.category",
+    "pk": "00000000-0000-0000-0000-000000000103",
+    "fields": {"created_at": "2026-07-21T00:00:00Z", "updated_at": "2026-07-21T00:00:00Z", "name": "Climate", "slug": "climate", "description": "Climate and environmental initiatives", "is_active": true, "sort_order": 30}
+  },
+  {
+    "model": "taxonomy.focusarea",
+    "pk": "00000000-0000-0000-0000-000000000201",
+    "fields": {"created_at": "2026-07-21T00:00:00Z", "updated_at": "2026-07-21T00:00:00Z", "name": "Youth development", "slug": "youth-development", "description": "Initiatives for youth", "is_active": true, "sort_order": 10}
+  },
+  {
+    "model": "taxonomy.focusarea",
+    "pk": "00000000-0000-0000-0000-000000000202",
+    "fields": {"created_at": "2026-07-21T00:00:00Z", "updated_at": "2026-07-21T00:00:00Z", "name": "Education", "slug": "education-focus", "description": "Education access and quality", "is_active": true, "sort_order": 20}
+  },
+  {
+    "model": "taxonomy.focusarea",
+    "pk": "00000000-0000-0000-0000-000000000203",
+    "fields": {"created_at": "2026-07-21T00:00:00Z", "updated_at": "2026-07-21T00:00:00Z", "name": "Innovation", "slug": "innovation", "description": "Innovation ecosystems", "is_active": true, "sort_order": 30}
+  },
+  {
+    "model": "taxonomy.language",
+    "pk": "00000000-0000-0000-0000-000000000301",
+    "fields": {"created_at": "2026-07-21T00:00:00Z", "updated_at": "2026-07-21T00:00:00Z", "name": "Russian", "slug": "russian", "code": "ru", "native_name": "Русский", "is_active": true, "sort_order": 10}
+  },
+  {
+    "model": "taxonomy.language",
+    "pk": "00000000-0000-0000-0000-000000000302",
+    "fields": {"created_at": "2026-07-21T00:00:00Z", "updated_at": "2026-07-21T00:00:00Z", "name": "English", "slug": "english", "code": "en", "native_name": "English", "is_active": true, "sort_order": 20}
+  },
+  {
+    "model": "taxonomy.educationlevel",
+    "pk": "00000000-0000-0000-0000-000000000401",
+    "fields": {"created_at": "2026-07-21T00:00:00Z", "updated_at": "2026-07-21T00:00:00Z", "name": "Secondary", "slug": "secondary", "is_active": true, "sort_order": 10}
+  },
+  {
+    "model": "taxonomy.educationlevel",
+    "pk": "00000000-0000-0000-0000-000000000402",
+    "fields": {"created_at": "2026-07-21T00:00:00Z", "updated_at": "2026-07-21T00:00:00Z", "name": "Bachelor's", "slug": "bachelors", "is_active": true, "sort_order": 20}
+  },
+  {
+    "model": "taxonomy.educationlevel",
+    "pk": "00000000-0000-0000-0000-000000000403",
+    "fields": {"created_at": "2026-07-21T00:00:00Z", "updated_at": "2026-07-21T00:00:00Z", "name": "Master's", "slug": "masters", "is_active": true, "sort_order": 30}
+  },
+  {
+    "model": "taxonomy.workformat",
+    "pk": "00000000-0000-0000-0000-000000000501",
+    "fields": {"created_at": "2026-07-21T00:00:00Z", "updated_at": "2026-07-21T00:00:00Z", "name": "Remote", "slug": "remote", "is_active": true, "sort_order": 10}
+  },
+  {
+    "model": "taxonomy.workformat",
+    "pk": "00000000-0000-0000-0000-000000000502",
+    "fields": {"created_at": "2026-07-21T00:00:00Z", "updated_at": "2026-07-21T00:00:00Z", "name": "Hybrid", "slug": "hybrid", "is_active": true, "sort_order": 20}
+  },
+  {
+    "model": "taxonomy.workformat",
+    "pk": "00000000-0000-0000-0000-000000000503",
+    "fields": {"created_at": "2026-07-21T00:00:00Z", "updated_at": "2026-07-21T00:00:00Z", "name": "On-site", "slug": "onsite", "is_active": true, "sort_order": 30}
+  }
+]

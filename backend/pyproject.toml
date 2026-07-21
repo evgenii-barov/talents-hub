@@ -65,7 +65,7 @@ warn_return_any = true
 warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
-module = ["allauth.*", "celery.*", "environ", "storages.*"]
+module = ["allauth.*", "celery.*", "environ", "rest_framework.*", "storages.*"]
 ignore_missing_imports = true
 
 [tool.django-stubs]
