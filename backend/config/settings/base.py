@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "apps.taxonomy",
     "apps.media",
     "apps.profiles",
+    "apps.organizations",
 ]
 
 MIDDLEWARE = [
