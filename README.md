@@ -6,7 +6,7 @@
 
 ## Статус
 
-Ветка `main` намеренно содержит только описание и документацию. Исходный код будет добавляться после утверждения дизайна, модели ролей и границ первого релиза.
+Ветка `main` содержит документацию и технический фундамент backend. Прикладные модули будут добавляться по вертикальным срезам после утверждения дизайна, модели ролей и границ первого релиза.
 
 ## Цель MVP
 
@@ -46,3 +46,21 @@
 
 - `main` — документация и будущая разработка MVP;
 - `prototype_for_sco` — сохранённый статический демонстрационный прототип.
+
+## Быстрый старт backend
+
+Подробные команды находятся в [README backend](backend/README.md). Коротко:
+
+```powershell
+cd backend
+Copy-Item .env.example .env
+.\.venv\Scripts\Activate.ps1
+python manage.py runserver
+```
+
+Или поднимите полный локальный стек (Django, PostgreSQL, Redis и Celery):
+
+```powershell
+Copy-Item backend\.env.example backend\.env
+docker compose up --build
+```
