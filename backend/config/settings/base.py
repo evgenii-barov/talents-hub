@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     "apps.organizations",
     "apps.projects",
     "apps.applications",
+    "apps.audit",
+    "apps.notifications",
+    "apps.moderation",
 ]
 
 MIDDLEWARE = [

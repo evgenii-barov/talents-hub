@@ -42,6 +42,7 @@
 - [Целевая архитектура](docs/architecture.md)
 - [План старта разработки](docs/roadmap.md)
 - [Основная модель данных](docs/data-model.md)
+- [API-контракт MVP](docs/api.md)
 - [Frontend: запуск и соглашения](frontend/README.md)
 
 ## Ветки
