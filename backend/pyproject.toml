@@ -23,6 +23,7 @@ dependencies = [
   "gunicorn>=23,<24",
   "Pillow>=11,<12",
   "requests>=2.32,<3",
+  "sentry-sdk[celery,django]>=2.0,<3",
 ]
 
 [project.optional-dependencies]
