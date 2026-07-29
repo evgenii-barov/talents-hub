@@ -17,8 +17,8 @@ htmlcov/
 
 # Django
 *.log
-staticfiles/
-media/
+/staticfiles/
+/media/
 backend/staticfiles/
 backend/media/
 backend/.env
