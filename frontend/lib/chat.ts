@@ -1,4 +1,5 @@
 import { API_URL, apiFetch } from "@/lib/api";
+import { resolveChatWebSocketUrl } from "@/lib/chat-url";
 
 export type ConversationParticipant = {
   id: string;
@@ -79,11 +80,9 @@ export function markConversationRead(conversationId: string) {
 }
 
 export function getChatWebSocketUrl(): string {
-  const url = new URL(API_URL);
-  url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
-  const basePath = url.pathname.replace(/\/api\/?$/, "");
-  url.pathname = `${basePath}/ws/chat/`.replace(/\/{2,}/g, "/");
-  return url.toString();
+  const browserOrigin =
+    typeof window === "undefined" ? undefined : window.location.origin;
+  return resolveChatWebSocketUrl(API_URL, browserOrigin);
 }
 
 export function sendRealtimeChatMessage(
