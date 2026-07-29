@@ -1,9 +1,12 @@
+from typing import Any
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F, Q
 
 from apps.common.models import PublicationStatus, PublishableModel, SoftDeleteModel
+from apps.common.search import search_text, transliterate
 from apps.media.models import MediaAsset
 from apps.taxonomy.models import (
     Category,
@@ -46,6 +49,8 @@ class Profile(PublishableModel):
     display_name = models.CharField(max_length=160)
     headline = models.CharField(max_length=255, blank=True)
     bio = models.TextField(blank=True)
+    search_text = models.TextField(blank=True, editable=False)
+    search_translit = models.TextField(blank=True, editable=False)
     country = models.ForeignKey(
         Country,
         blank=True,
@@ -88,7 +93,7 @@ class Profile(PublishableModel):
     timezone = models.CharField(default="Europe/Moscow", max_length=64)
     is_verified = models.BooleanField(default=False)
 
-    objects = ProfileQuerySet.as_manager()
+    objects = ProfileQuerySet.as_manager()  # type: ignore[misc]
 
     class Meta:
         constraints = [
@@ -109,6 +114,15 @@ class Profile(PublishableModel):
         city = self.city
         if city and self.country_id and city.country_id != self.country_id:
             raise ValidationError({"city": "City must belong to the selected country."})
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        self.search_text = search_text((self.slug, self.display_name, self.headline, self.bio))
+        self.search_translit = transliterate(self.search_text)
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None:
+            fields = set(update_fields) | {"search_text", "search_translit"}
+            kwargs["update_fields"] = fields
+        super().save(*args, **kwargs)
 
     def __str__(self) -> str:
         return self.display_name

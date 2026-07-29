@@ -145,7 +145,13 @@ def decide_case(
         target.moderated_by = moderator
         target.moderation_note = note
         update_fields = ["status", "moderated_at", "moderated_by", "moderation_note", "updated_at"]
-        if decision == "approved" and target.published_at is None:
+        if decision == "approved" and isinstance(target, Profile):
+            # Approval makes a profile eligible for publication. The owner must
+            # explicitly opt in before the profile appears in the catalogue.
+            target.visibility = Profile.Visibility.PRIVATE
+            target.published_at = None
+            update_fields.extend(["visibility", "published_at"])
+        elif decision == "approved" and target.published_at is None:
             target.published_at = timezone.now()
             update_fields.append("published_at")
         target.save(update_fields=update_fields)

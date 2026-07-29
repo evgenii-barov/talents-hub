@@ -1,9 +1,12 @@
-from typing import Any, ClassVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
 from apps.common.models import UUIDTimestampedModel
+
+if TYPE_CHECKING:
+    from apps.profiles.models import Profile
 
 
 class UserManager(BaseUserManager["User"]):
@@ -45,6 +48,9 @@ class User(AbstractUser):
     REQUIRED_FIELDS: ClassVar[list[str]] = []
 
     objects = UserManager()  # type: ignore[misc, assignment]
+
+    if TYPE_CHECKING:
+        profile: "Profile"
 
 
 class UserRole(UUIDTimestampedModel):

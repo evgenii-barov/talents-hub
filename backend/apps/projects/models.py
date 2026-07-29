@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -5,6 +7,7 @@ from django.db.models import F, Q
 from django.utils import timezone
 
 from apps.common.models import PublishableModel, SoftDeleteModel
+from apps.common.search import search_text, transliterate
 from apps.organizations.models import Organization
 from apps.profiles.models import Profile
 from apps.taxonomy.models import Category, City, Country, FocusArea, Language, Skill, WorkFormat
@@ -54,6 +57,8 @@ class Project(PublishableModel):
     title = models.CharField(max_length=255)
     short_description = models.CharField(max_length=500)
     description = models.TextField()
+    search_text = models.TextField(blank=True, editable=False)
+    search_translit = models.TextField(blank=True, editable=False)
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -98,7 +103,7 @@ class Project(PublishableModel):
     application_deadline = models.DateField(blank=True, null=True)
     is_featured = models.BooleanField(default=False)
 
-    objects = ProjectQuerySet.as_manager()
+    objects = ProjectQuerySet.as_manager()  # type: ignore[misc]
 
     class Meta:
         constraints = [
@@ -135,6 +140,26 @@ class Project(PublishableModel):
         city = self.city
         if city and self.country_id and city.country_id != self.country_id:
             raise ValidationError({"city": "City must belong to the selected country."})
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        self.search_text = search_text(
+            (
+                self.slug,
+                self.title,
+                self.short_description,
+                self.description,
+                self.problem_statement,
+                self.goal_statement,
+                self.expected_outcome,
+                self.timeline_text,
+            )
+        )
+        self.search_translit = transliterate(self.search_text)
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None:
+            fields = set(update_fields) | {"search_text", "search_translit"}
+            kwargs["update_fields"] = fields
+        super().save(*args, **kwargs)
 
     def is_publishable(self) -> bool:
         return bool(

@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 
+import { useLocale } from "@/components/i18n/locale-provider";
 import { SiteHeader } from "@/components/layout/site-header";
 import { Button } from "@/components/ui/button";
 
@@ -9,7 +12,12 @@ type SectionPlaceholderProps = {
   description: string;
 };
 
-export function SectionPlaceholder({ eyebrow, title, description }: SectionPlaceholderProps) {
+export function SectionPlaceholder({
+  eyebrow,
+  title,
+  description,
+}: SectionPlaceholderProps) {
+  const { tr } = useLocale();
   return (
     <div className="min-h-full bg-[var(--color-background)]">
       <SiteHeader />
@@ -25,7 +33,7 @@ export function SectionPlaceholder({ eyebrow, title, description }: SectionPlace
             {description}
           </p>
           <Button asChild className="mt-7">
-            <Link href="/">Back to home</Link>
+            <Link href="/">{tr("Back to home", "На главную")}</Link>
           </Button>
         </section>
       </main>

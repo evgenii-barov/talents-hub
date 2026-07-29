@@ -3,7 +3,7 @@
 ## Локальный запуск через virtualenv
 
 Сначала поднимите инфраструктуру из корня репозитория. PostgreSQL опубликован на
-`localhost:55432`, чтобы не конфликтовать с локально установленным PostgreSQL.
+`localhost:5433`, чтобы не конфликтовать с локально установленным PostgreSQL.
 
 ```powershell
 cd ..
@@ -15,7 +15,7 @@ cd backend
 Copy-Item .env.example .env
 .\.venv\Scripts\Activate.ps1
 python manage.py migrate
-python manage.py runserver
+daphne -b 0.0.0.0 -p 8000 config.asgi:application
 ```
 
 ## Запуск через Docker
@@ -38,3 +38,5 @@ ruff check .
 pytest
 mypy apps config
 ```
+
+`pytest` enforces an 85% coverage floor and writes `coverage.xml` for CI.

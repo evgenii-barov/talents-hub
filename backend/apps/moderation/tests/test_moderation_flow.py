@@ -1,6 +1,7 @@
 import pytest
 from django.test import Client
 from django.urls import reverse
+from django.utils import timezone
 
 from apps.audit.models import AuditEvent
 from apps.moderation.models import ModerationCase
@@ -29,6 +30,9 @@ def test_approval_updates_target_audits_and_delivers_notification(
     submitted_profile: tuple[Profile, User, User],
 ) -> None:
     profile, owner, moderator = submitted_profile
+    profile.visibility = Profile.Visibility.PUBLIC
+    profile.published_at = timezone.now()
+    profile.save(update_fields=["visibility", "published_at", "updated_at"])
     case = submit_for_moderation(
         target=profile,
         reporter=owner,
@@ -44,6 +48,8 @@ def test_approval_updates_target_audits_and_delivers_notification(
 
     assert resolved.status == ModerationCase.Status.APPROVED
     assert profile.status == "published"
+    assert profile.visibility == Profile.Visibility.PRIVATE
+    assert profile.published_at is None
     assert profile.moderated_by == moderator
     assert AuditEvent.objects.filter(action="moderation.submitted").exists()
     assert AuditEvent.objects.filter(action="moderation.approved").exists()

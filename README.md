@@ -1,12 +1,14 @@
 # Talents Hub
 
+[![CI](https://github.com/pudgewithmom/talents-hub/actions/workflows/ci.yml/badge.svg)](https://github.com/pudgewithmom/talents-hub/actions/workflows/ci.yml)
+
 **Talents Hub** — цифровая платформа для поиска специалистов, проектных команд и карьерных возможностей в молодёжном треке ШОС.
 
-Репозиторий начинает разработку MVP с нуля. Демонстрационный сайт сохранён в ветке `prototype_for_sco` как источник пользовательских сценариев, контента и функциональных требований; он не является основой production-кода.
+Production-код MVP развивается в `main`. Ранний статический прототип сохранён в ветке `prototype_for_sco` как источник пользовательских сценариев и функциональных требований.
 
 ## Статус
 
-Ветка `main` содержит документацию и технический фундамент backend. Прикладные модули будут добавляться по вертикальным срезам после утверждения дизайна, модели ролей и границ первого релиза.
+Ветка `main` содержит полнофункциональный MVP: Next.js-интерфейс, Django/DRF API, регистрацию и OAuth, профили, организации, проекты и отклики, модерацию, уведомления, загрузку медиа и WebSocket-чат. Локальный стек воспроизводится через Docker Compose, а frontend и backend проходят автоматические проверки в CI.
 
 ## Цель MVP
 
@@ -27,7 +29,7 @@
 | Frontend | Next.js, React, TypeScript |
 | UI | shadcn/ui, Tailwind CSS |
 | Backend | Django 5.2 LTS, Django REST Framework |
-| Авторизация | django-allauth: email, Google, Yandex, VK |
+| Авторизация | email+пароль, Google OAuth, GitHub OAuth; django-allauth |
 | Данные и поиск | PostgreSQL, Full Text Search, `pg_trgm` |
 | Фоновые задачи | Celery, Redis |
 | Файлы | S3-совместимое объектное хранилище |
@@ -48,7 +50,7 @@
 
 ## Ветки
 
-- `main` — документация и будущая разработка MVP;
+- `main` — актуальная реализация MVP и документация;
 - `prototype_for_sco` — сохранённый статический демонстрационный прототип.
 
 ## Быстрый старт backend
@@ -59,7 +61,7 @@
 cd backend
 Copy-Item .env.example .env
 .\.venv\Scripts\Activate.ps1
-python manage.py runserver
+daphne -b 0.0.0.0 -p 8000 config.asgi:application
 ```
 
 Или поднимите полный локальный стек (Django, PostgreSQL, Redis и Celery):

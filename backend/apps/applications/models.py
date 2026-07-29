@@ -2,16 +2,21 @@ from typing import Any
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db import models, transaction
+from django.db import IntegrityError, models, transaction
 from django.db.models import F, Q
 from django.utils import timezone
 
 from apps.common.models import SoftDeleteModel
+from apps.notifications.models import Notification
 from apps.profiles.models import Profile
 from apps.projects.models import ProjectMember, ProjectRole, ProjectStatus
 
 
 class InvalidApplicationTransition(ValidationError):
+    pass
+
+
+class DuplicateApplication(ValidationError):
     pass
 
 
@@ -98,13 +103,39 @@ class ProjectApplication(SoftDeleteModel):
             raise ValidationError("This role is not open for applications.")
         if project.application_deadline and project.application_deadline < timezone.localdate():
             raise ValidationError("The application deadline has passed.")
-        if not Profile.objects.public().filter(user=applicant).exists():
+        applicant_profile = Profile.objects.public().filter(user=applicant).first()
+        if applicant_profile is None:
             raise ValidationError("A published public profile is required to apply.")
-        return cls.objects.create(
+        if cls.objects.filter(
             project_role=project_role,
             applicant=applicant,
-            cover_letter=cover_letter,
-        )
+            deleted_at__isnull=True,
+            status__in=cls.ACTIVE_STATUSES,
+        ).exists():
+            raise DuplicateApplication("You have already applied for this role.")
+        try:
+            with transaction.atomic():
+                application = cls.objects.create(
+                    project_role=project_role,
+                    applicant=applicant,
+                    cover_letter=cover_letter,
+                )
+                Notification.objects.create(
+                    recipient=project.owner,
+                    type="application_submitted",
+                    payload={
+                        "application_id": str(application.id),
+                        "project_id": str(project.id),
+                        "project_slug": project.slug,
+                        "project_title": project.title,
+                        "role_title": project_role.title,
+                        "applicant_name": applicant_profile.display_name,
+                        "status": application.status,
+                    },
+                )
+                return application
+        except IntegrityError as exc:
+            raise DuplicateApplication("You have already applied for this role.") from exc
 
     @transaction.atomic
     def transition(
@@ -148,6 +179,26 @@ class ProjectApplication(SoftDeleteModel):
                 "updated_at",
             ]
         )
+        recipient_id = (
+            application.project_role.project.owner_id
+            if target == self.Status.WITHDRAWN
+            else application.applicant_id
+        )
+        reviewer_id = getattr(reviewer, "id", None)
+        if recipient_id != reviewer_id:
+            Notification.objects.create(
+                recipient_id=recipient_id,
+                type="application_status_changed",
+                payload={
+                    "application_id": str(application.id),
+                    "project_id": str(application.project_role.project_id),
+                    "project_slug": application.project_role.project.slug,
+                    "project_title": application.project_role.project.title,
+                    "role_title": application.project_role.title,
+                    "status": target,
+                    "review_note": review_note,
+                },
+            )
         return application
 
     def _accept(self, reviewer: Any | None) -> None:

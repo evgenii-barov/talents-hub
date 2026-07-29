@@ -70,7 +70,7 @@ class Organization(PublishableModel):
     is_verified = models.BooleanField(default=False)
     verified_at = models.DateTimeField(blank=True, null=True)
 
-    objects = OrganizationQuerySet.as_manager()
+    objects = OrganizationQuerySet.as_manager()  # type: ignore[misc]
 
     class Meta:
         constraints = [

@@ -2,6 +2,10 @@ from typing import Any
 
 from rest_framework import serializers
 
+from apps.common.models import PublicationStatus
+from apps.organizations.models import Organization
+from apps.profiles.api.serializers import AvatarSerializer
+from apps.profiles.models import Profile
 from apps.projects.models import Project, ProjectContact, ProjectFocus, ProjectRole, ProjectSkill
 from apps.taxonomy.models import Category
 
@@ -10,6 +14,20 @@ class TaxonomyReferenceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ("id", "name", "slug")
+
+
+class OrganizationReferenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organization
+        fields = ("id", "slug", "display_name")
+
+
+class TalentReferenceSerializer(serializers.ModelSerializer):
+    avatar = AvatarSerializer(read_only=True)
+
+    class Meta:
+        model = Profile
+        fields = ("id", "slug", "display_name", "avatar")
 
 
 class ProjectRoleSerializer(serializers.ModelSerializer):
@@ -53,7 +71,9 @@ class ProjectPublicSerializer(serializers.ModelSerializer):
     category = TaxonomyReferenceSerializer(read_only=True)
     work_format = TaxonomyReferenceSerializer(read_only=True)
     working_language = TaxonomyReferenceSerializer(read_only=True)
+    organization = OrganizationReferenceSerializer(read_only=True)
     organization_name = serializers.CharField(source="organization.display_name", read_only=True)
+    owner_profile = serializers.SerializerMethodField()
     roles = serializers.SerializerMethodField()
     focuses = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
@@ -67,7 +87,9 @@ class ProjectPublicSerializer(serializers.ModelSerializer):
             "title",
             "short_description",
             "description",
+            "organization",
             "organization_name",
+            "owner_profile",
             "category",
             "stage",
             "problem_statement",
@@ -91,6 +113,19 @@ class ProjectPublicSerializer(serializers.ModelSerializer):
         return ProjectRoleSerializer(
             project.roles.filter(deleted_at__isnull=True), many=True
         ).data
+
+    def get_owner_profile(self, project: Project) -> Any:
+        try:
+            profile = project.owner.profile
+        except Profile.DoesNotExist:
+            return None
+        if (
+            profile.deleted_at is not None
+            or profile.status != PublicationStatus.PUBLISHED
+            or profile.visibility != Profile.Visibility.PUBLIC
+        ):
+            return None
+        return TalentReferenceSerializer(profile).data
 
     def get_focuses(self, project: Project) -> Any:
         return ProjectFocusSerializer(

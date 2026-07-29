@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import environ
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -15,6 +16,7 @@ DEBUG = env.bool("DJANGO_DEBUG", default=False)
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -30,6 +32,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.github",
     "allauth.socialaccount.providers.vk",
     "allauth.socialaccount.providers.yandex",
     "apps.common",
@@ -40,6 +43,7 @@ INSTALLED_APPS = [
     "apps.organizations",
     "apps.projects",
     "apps.applications",
+    "apps.chat",
     "apps.audit",
     "apps.notifications",
     "apps.moderation",
@@ -140,6 +144,51 @@ EMAIL_BACKEND = env(
     default="django.core.mail.backends.console.EmailBackend",
 )
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@localhost")
+EMAIL_HOST = env("EMAIL_HOST", default="")
+EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=False)
+EMAIL_TIMEOUT = env.int("EMAIL_TIMEOUT", default=15)
+FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000").rstrip("/")
+LOGIN_REDIRECT_URL = f"{FRONTEND_URL}/profile"
+
+
+def social_provider_app(prefix: str) -> list[dict[str, str]]:
+    client_id = env(f"{prefix}_OAUTH_CLIENT_ID", default="")
+    client_secret = env(f"{prefix}_OAUTH_CLIENT_SECRET", default="")
+    if bool(client_id) != bool(client_secret):
+        raise ImproperlyConfigured(
+            f"Set both {prefix}_OAUTH_CLIENT_ID and {prefix}_OAUTH_CLIENT_SECRET, or neither."
+        )
+    if not client_id:
+        return []
+    return [{"client_id": client_id, "secret": client_secret, "key": ""}]
+
+
+# Secrets intentionally come from the environment instead of Django Admin. The application
+# requests identity-only scopes and does not retain provider access tokens.
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APPS": social_provider_app("GOOGLE"),
+        "SCOPE": ["openid", "profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
+        "OAUTH_PKCE_ENABLED": True,
+    },
+    "github": {
+        "APPS": social_provider_app("GITHUB"),
+        "SCOPE": ["user:email"],
+    },
+}
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_STORE_TOKENS = False
+# A matching email address alone must not silently attach an external account.
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = False
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = False
+# The provider authentication itself is sufficient for a new social-only account. Email/password
+# registrations still require the Postbox confirmation link configured above.
+SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
 
 REDIS_URL = env("REDIS_URL", default="redis://localhost:6379/1")
 CACHES = {
@@ -147,6 +196,13 @@ CACHES = {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": REDIS_URL,
         "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
+    }
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {"hosts": [REDIS_URL]},
     }
 }
 

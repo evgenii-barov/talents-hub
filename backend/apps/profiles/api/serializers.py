@@ -40,9 +40,16 @@ class CitySerializer(serializers.ModelSerializer):
 
 
 class AvatarSerializer(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField()
+
     class Meta:
         model = MediaAsset
-        fields = ("id", "alt_text")
+        fields = ("id", "alt_text", "url")
+
+    def get_url(self, asset: MediaAsset) -> str:
+        from django.core.files.storage import default_storage
+
+        return default_storage.url(asset.storage_key)
 
 
 class ProfileSkillSerializer(serializers.ModelSerializer):
@@ -191,7 +198,6 @@ class ProfileWriteSerializer(serializers.ModelSerializer):
             "country",
             "city",
             "avatar",
-            "visibility",
             "availability",
             "availability_note",
             "remote_preference",
@@ -213,3 +219,145 @@ class ProfileWriteSerializer(serializers.ModelSerializer):
         if not valid_location and country is not None and city is not None:
             raise serializers.ValidationError({"city": "City must belong to the selected country."})
         return attrs
+
+    def validate_avatar(self, avatar: MediaAsset) -> MediaAsset:
+        request = self.context.get("request")
+        if request is None or avatar.uploaded_by_id != request.user.id:
+            raise serializers.ValidationError("You can only use your own uploaded image.")
+        if avatar.status != MediaAsset.Status.AVAILABLE:
+            raise serializers.ValidationError("This image is not available.")
+        return avatar
+
+
+class ProfileSkillWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProfileSkill
+        fields = ("skill", "level", "is_primary", "sort_order")
+
+    def validate_skill(self, skill: Any) -> Any:
+        profile: Profile = self.context["profile"]
+        queryset = ProfileSkill.objects.filter(
+            profile=profile,
+            skill=skill,
+            deleted_at__isnull=True,
+        )
+        if self.instance is not None:
+            queryset = queryset.exclude(pk=self.instance.pk)
+        if queryset.exists():
+            raise serializers.ValidationError("This skill is already on your profile.")
+        return skill
+
+
+class ProfileLanguageWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProfileLanguage
+        fields = ("language", "proficiency", "is_primary", "sort_order")
+
+    def validate_language(self, language: Any) -> Any:
+        profile: Profile = self.context["profile"]
+        queryset = ProfileLanguage.objects.filter(
+            profile=profile,
+            language=language,
+            deleted_at__isnull=True,
+        )
+        if self.instance is not None:
+            queryset = queryset.exclude(pk=self.instance.pk)
+        if queryset.exists():
+            raise serializers.ValidationError("This language is already on your profile.")
+        return language
+
+
+class ProfileExperienceWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProfileExperience
+        fields = (
+            "organization_name",
+            "title",
+            "location_text",
+            "work_format",
+            "started_on",
+            "ended_on",
+            "is_current",
+            "description",
+            "sort_order",
+        )
+
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
+        started_on = attrs.get("started_on", getattr(self.instance, "started_on", None))
+        ended_on = attrs.get("ended_on", getattr(self.instance, "ended_on", None))
+        is_current = attrs.get("is_current", getattr(self.instance, "is_current", False))
+        if is_current and ended_on is not None:
+            raise serializers.ValidationError(
+                {"ended_on": "Current experience cannot have an end date."}
+            )
+        if started_on is not None and ended_on is not None and ended_on < started_on:
+            raise serializers.ValidationError({"ended_on": "End date cannot be before start date."})
+        return attrs
+
+
+class ProfileEducationWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProfileEducation
+        fields = (
+            "institution_name",
+            "degree",
+            "field_of_study",
+            "education_level",
+            "started_on",
+            "ended_on",
+            "credential_url",
+            "sort_order",
+        )
+
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
+        started_on = attrs.get("started_on", getattr(self.instance, "started_on", None))
+        ended_on = attrs.get("ended_on", getattr(self.instance, "ended_on", None))
+        if started_on is not None and ended_on is not None and ended_on < started_on:
+            raise serializers.ValidationError({"ended_on": "End date cannot be before start date."})
+        return attrs
+
+
+class ProfileLinkWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProfileLink
+        fields = ("kind", "url", "label", "sort_order")
+
+
+class MyProfileSerializer(ProfilePublicSerializer):
+    """Private owner view: adds the visibility setting hidden from the public catalogue."""
+
+    visibility = serializers.CharField(read_only=True)
+    status = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Profile
+        fields = (
+            "id",
+            "slug",
+            "display_name",
+            "headline",
+            "bio",
+            "country",
+            "city",
+            "avatar",
+            "availability",
+            "availability_note",
+            "remote_preference",
+            "timezone",
+            "is_verified",
+            "skills",
+            "languages",
+            "experiences",
+            "education",
+            "links",
+            "project_preferences",
+            "visibility",
+            "status",
+            "published_at",
+            "moderated_at",
+            "moderation_note",
+        )
+
+
+class ProfileVisibilitySerializer(serializers.Serializer):
+    is_visible = serializers.BooleanField()

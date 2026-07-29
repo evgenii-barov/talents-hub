@@ -6,8 +6,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.applications.models import ProjectApplication
-from apps.projects.models import ProjectRole
+from apps.applications.models import DuplicateApplication, ProjectApplication
+from apps.projects.models import Project, ProjectRole
 
 from .serializers import ApplicationTransitionSerializer, ProjectApplicationSerializer
 
@@ -22,6 +22,11 @@ class ProjectRoleApplicationView(APIView):
                 project_role=role,
                 applicant=request.user,
                 cover_letter=str(request.data.get("cover_letter", "")),
+            )
+        except DuplicateApplication as exc:
+            return Response(
+                {"code": "duplicate_application", "detail": exc.messages[0]},
+                status=status.HTTP_409_CONFLICT,
             )
         except DjangoValidationError as exc:
             raise ValidationError(exc.messages) from exc
@@ -53,3 +58,36 @@ class ProjectApplicationTransitionView(APIView):
         except DjangoValidationError as exc:
             raise ValidationError(exc.messages) from exc
         return Response(ProjectApplicationSerializer(application).data)
+
+
+class MyApplicationsView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request: Request) -> Response:
+        applications = (
+            ProjectApplication.objects.filter(applicant=request.user, deleted_at__isnull=True)
+            .select_related("project_role__project", "applicant__profile")
+            .order_by("-submitted_at")
+        )
+        return Response(ProjectApplicationSerializer(applications, many=True).data)
+
+
+class MyProjectApplicationsView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request: Request, project_id: str) -> Response:
+        project = get_object_or_404(
+            Project,
+            pk=project_id,
+            owner=request.user,
+            deleted_at__isnull=True,
+        )
+        applications = (
+            ProjectApplication.objects.filter(
+                project_role__project=project,
+                deleted_at__isnull=True,
+            )
+            .select_related("project_role__project", "applicant__profile")
+            .order_by("-submitted_at")
+        )
+        return Response(ProjectApplicationSerializer(applications, many=True).data)

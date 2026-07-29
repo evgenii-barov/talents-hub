@@ -1,4 +1,5 @@
 from django.db.models import QuerySet
+from django.utils import timezone
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
@@ -23,3 +24,12 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet[Notification]):
         notification = self.get_object()
         notification.mark_read()
         return Response(NotificationSerializer(notification).data)
+
+    @action(detail=False, methods=["post"], url_path="read-all")
+    def read_all(self, request: Request) -> Response:
+        now = timezone.now()
+        updated = self.get_queryset().filter(read_at__isnull=True).update(
+            read_at=now,
+            updated_at=now,
+        )
+        return Response({"updated": updated})
