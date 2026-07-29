@@ -45,7 +45,7 @@ class ConversationAccessMixin:
         return get_object_or_404(
             Organization.objects.filter(
                 pk=organization_id,
-                conversation_participations__conversation=conversation,  # type: ignore[misc]
+                conversation_participations__conversation=conversation,
                 conversation_participations__deleted_at__isnull=True,
                 memberships__user=request.user,
                 memberships__status=OrganizationMembership.Status.ACTIVE,

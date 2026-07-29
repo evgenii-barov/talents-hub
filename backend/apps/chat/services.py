@@ -42,8 +42,9 @@ def organization_logo_url(organization: Organization) -> str | None:
 
 
 def message_sender_avatar_url(message: ChatMessage) -> str | None:
-    if message.sender_organization_id:
-        return organization_logo_url(message.sender_organization)
+    sender_organization = message.sender_organization
+    if sender_organization is not None:
+        return organization_logo_url(sender_organization)
     return user_avatar_url(message.sender)
 
 
@@ -82,10 +83,11 @@ def conversation_user_ids(conversation: Conversation) -> list[int]:
 
 
 def _message_payload(message: ChatMessage, recipient_id: int) -> dict[str, Any]:
-    if message.sender_organization_id:
-        sender_name = message.sender_organization.display_name
+    sender_organization = message.sender_organization
+    if sender_organization is not None:
+        sender_name = sender_organization.display_name
         sender_profile_slug: str | None = None
-        sender_organization_slug: str | None = message.sender_organization.slug
+        sender_organization_slug: str | None = sender_organization.slug
         sender_kind = "organization"
     else:
         try:

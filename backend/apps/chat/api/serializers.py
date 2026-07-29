@@ -170,15 +170,16 @@ class ChatMessageSerializer(serializers.ModelSerializer):
         return "organization" if message.sender_organization_id else "talent"
 
     def get_sender_name(self, message: ChatMessage) -> str:
-        if message.sender_organization_id:
-            return str(message.sender_organization.display_name)
+        sender_organization = message.sender_organization
+        if sender_organization is not None:
+            return str(sender_organization.display_name)
         try:
             return str(message.sender.profile.display_name)
         except ObjectDoesNotExist:
             return str(message.sender.email)
 
     def get_sender_profile_slug(self, message: ChatMessage) -> str | None:
-        if message.sender_organization_id:
+        if message.sender_organization is not None:
             return None
         try:
             return str(message.sender.profile.slug)
@@ -186,11 +187,8 @@ class ChatMessageSerializer(serializers.ModelSerializer):
             return None
 
     def get_sender_organization_slug(self, message: ChatMessage) -> str | None:
-        return (
-            message.sender_organization.slug
-            if message.sender_organization_id is not None
-            else None
-        )
+        sender_organization = message.sender_organization
+        return str(sender_organization.slug) if sender_organization is not None else None
 
     def get_sender_avatar_url(self, message: ChatMessage) -> str | None:
         return message_sender_avatar_url(message)
