@@ -84,8 +84,15 @@ EMAIL_USE_SSL=true
 EMAIL_TIMEOUT=15
 ```
 
-Keep the mailbox password in the root-owned `SMTP_PASSWORD_FILE` with mode `600`; Docker mounts it
-read-only at `EMAIL_HOST_PASSWORD_FILE`. Never commit it or put it directly into a Compose
-environment variable. Publish the REG.RU-generated DKIM record and verify the domain's single SPF
-record and DMARC policy. After DNS verifies, send registration and password-reset tests to external
-mailboxes.
+Keep the mailbox password in the root-owned `SMTP_PASSWORD_FILE`; never commit it or put it directly
+into a Compose environment variable. The production image runs as UID/GID `10001`, so grant only
+that group read access before starting the containers:
+
+```bash
+chown root:10001 /root/talents-hub-smtp-password
+chmod 640 /root/talents-hub-smtp-password
+```
+
+Docker mounts the file read-only at `EMAIL_HOST_PASSWORD_FILE`. Publish the REG.RU-generated DKIM
+record and verify the domain's single SPF record and DMARC policy. After DNS verifies, send
+registration and password-reset tests to external mailboxes.

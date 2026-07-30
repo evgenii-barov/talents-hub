@@ -21,7 +21,7 @@ EMAIL_USE_SSL=true
 EMAIL_TIMEOUT=15
 ```
 
-Пароль ящика хранится в отдельном root-owned файле с правами `600`, подключённом как Docker secret, и не коммитится в Git. Логика писем находится в `apps/users/emails.py`, а фирменные HTML/plain-text шаблоны — в `backend/templates/emails/`, поэтому менять API и frontend не требуется.
+Пароль ящика хранится в отдельном root-owned файле, подключённом как Docker secret, и не коммитится в Git. Для чтения непривилегированным пользователем контейнера установите владельца `root:10001` и права `640`. Логика писем находится в `apps/users/emails.py`, а фирменные HTML/plain-text шаблоны — в `backend/templates/emails/`, поэтому менять API и frontend не требуется.
 
 ## Новые пользовательские маршруты
 
