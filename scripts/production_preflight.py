@@ -193,13 +193,40 @@ def validate(values: dict[str, str], *, strict_external: bool) -> tuple[list[str
     if "@glitchtip-db:" not in values.get("GLITCHTIP_DATABASE_URL", ""):
         errors.append("GLITCHTIP_DATABASE_URL must use the internal Docker host glitchtip-db")
 
-    if values.get("DJANGO_EMAIL_BACKEND", "").endswith("console.EmailBackend"):
+    email_backend = values.get("DJANGO_EMAIL_BACKEND", "")
+    if email_backend.endswith("console.EmailBackend"):
         message = "SMTP is not configured; registration emails will only appear in backend logs"
         (errors if strict_external else warnings).append(message)
+    elif email_backend.endswith("smtp.EmailBackend"):
+        for key in ("DEFAULT_FROM_EMAIL", "EMAIL_HOST", "EMAIL_HOST_USER", "EMAIL_HOST_PASSWORD"):
+            value = values.get(key, "")
+            if not value:
+                errors.append(f"{key} is required when SMTP is enabled")
+            elif "replace-me" in value.lower():
+                errors.append(f"{key} still contains a replace-me placeholder")
+
+        try:
+            email_port = int(values.get("EMAIL_PORT", ""))
+        except ValueError:
+            errors.append("EMAIL_PORT must be an integer when SMTP is enabled")
+        else:
+            if not 1 <= email_port <= 65_535:
+                errors.append("EMAIL_PORT must be between 1 and 65535")
+
+        email_use_tls = values.get("EMAIL_USE_TLS", "false").lower() == "true"
+        email_use_ssl = values.get("EMAIL_USE_SSL", "false").lower() == "true"
+        if email_use_tls and email_use_ssl:
+            errors.append("EMAIL_USE_TLS and EMAIL_USE_SSL cannot both be true")
+        elif not email_use_tls and not email_use_ssl:
+            errors.append("SMTP must use TLS or SSL in production")
+    else:
+        warnings.append("DJANGO_EMAIL_BACKEND is not the standard console or SMTP backend")
     if values.get("USE_S3", "false").lower() != "true":
         warnings.append("S3 is not configured; uploads will use the persistent server volume")
     if not values.get("SENTRY_DSN"):
-        warnings.append("GlitchTip DSN is not configured; add it after creating the GlitchTip project")
+        warnings.append(
+            "GlitchTip DSN is not configured; add it after creating the GlitchTip project"
+        )
 
     return errors, warnings
 

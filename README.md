@@ -33,7 +33,7 @@ Production-код MVP развивается в `main`. Ранний стати�
 | Данные и поиск | PostgreSQL, Full Text Search, `pg_trgm` |
 | Фоновые задачи | Celery, Redis |
 | Файлы | S3-совместимое объектное хранилище |
-| Почта | Yandex Cloud Postbox по SMTP |
+| Почта | REG.RU mailbox по SMTP, SPF/DKIM/DMARC |
 | Развёртывание | Docker, managed PostgreSQL, reverse proxy/CDN, CI/CD |
 
 Подробнее — в [архитектурном решении](docs/architecture.md).

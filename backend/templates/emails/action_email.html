@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="supported-color-schemes" content="light">
+    <title>{{ heading }}</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#fafafa; color:#101b38; font-family:Arial, 'Helvetica Neue', sans-serif; -webkit-text-size-adjust:100%;">
+    <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent; line-height:1px; font-size:1px;">
+      {{ preheader }}
+    </div>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#fafafa" style="width:100%; background-color:#fafafa; border-collapse:collapse;">
+      <tr>
+        <td align="center" style="padding:32px 16px;">
+          <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="width:100%; max-width:600px; border-collapse:separate; background-color:#ffffff; border:1px solid #e5e5e5; border-radius:12px;">
+            <tr>
+              <td style="padding:28px 32px 20px; border-bottom:1px solid #e5e5e5;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;">
+                  <tr>
+                    <td width="36" height="36" align="center" valign="middle" bgcolor="#2563eb" style="width:36px; height:36px; border-radius:9px; color:#ffffff; font-size:20px; line-height:36px; font-weight:700;">✦</td>
+                    <td style="padding-left:12px; color:#101b38; font-size:17px; line-height:24px; font-weight:700;">Talents Hub</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:32px;">
+                <p style="margin:0 0 10px; color:#2563eb; font-size:12px; line-height:18px; font-weight:700;">{{ eyebrow }}</p>
+                <h1 style="margin:0 0 16px; color:#101b38; font-size:28px; line-height:36px; font-weight:700;">{{ heading }}</h1>
+                <p style="margin:0 0 12px; color:#101b38; font-size:16px; line-height:26px;">Здравствуйте!</p>
+                <p style="margin:0 0 24px; color:#525252; font-size:16px; line-height:26px;">{{ intro }}</p>
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="border-collapse:separate;">
+                  <tr>
+                    <td align="center" bgcolor="#2563eb" style="border-radius:7px; mso-padding-alt:13px 22px;">
+                      <a href="{{ action_url }}" target="_blank" style="display:inline-block; padding:13px 22px; color:#ffffff; font-size:15px; line-height:20px; font-weight:700; text-decoration:none; border-radius:7px;">{{ action_label }}</a>
+                    </td>
+                  </tr>
+                </table>
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; margin-top:24px; border-collapse:separate; background-color:#e8f0ff; border-radius:8px;">
+                  <tr>
+                    <td style="padding:16px 18px; color:#274060; font-size:14px; line-height:22px;">{{ security_note }}</td>
+                  </tr>
+                </table>
+                <p style="margin:24px 0 8px; color:#737373; font-size:12px; line-height:19px;">Если кнопка не открывается, скопируйте ссылку целиком и вставьте её в браузер:</p>
+                <p style="margin:0; font-size:12px; line-height:19px; word-break:break-all;"><a href="{{ action_url }}" style="color:#2563eb; text-decoration:underline;">{{ action_url }}</a></p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:20px 32px 24px; border-top:1px solid #e5e5e5; color:#737373; font-size:12px; line-height:19px;">
+                <p style="margin:0 0 4px;">© {% now "Y" %} Talents Hub · Соединяем экспертизу разных стран.</p>
+                <p style="margin:0;"><a href="{{ site_url }}" style="color:#2563eb; text-decoration:none;">{{ site_url }}</a></p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

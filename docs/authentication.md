@@ -65,23 +65,23 @@ The successful callback creates the normal Django session and redirects to
 6. Verify a new account, an existing social account, cancellation at the provider, and an
    existing email/password account before release.
 
-## Yandex Cloud Postbox
+## REG.RU SMTP
 
-The development configuration writes emails to the backend console. When the domain is ready,
-switch Django to Yandex Cloud Postbox SMTP:
+The development configuration writes emails to the backend console. Production uses the REG.RU
+mailbox SMTP endpoint:
 
 ```dotenv
 DJANGO_EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
-DEFAULT_FROM_EMAIL=Talents Hub <noreply@<domain>>
-EMAIL_HOST=postbox.cloud.yandex.net
-EMAIL_PORT=587
-EMAIL_HOST_USER=<Postbox_API_key_ID>
-EMAIL_HOST_PASSWORD=<Postbox_API_key_secret>
-EMAIL_USE_TLS=true
-EMAIL_USE_SSL=false
+DEFAULT_FROM_EMAIL=Talents Hub <noreply@talents-hub.online>
+EMAIL_HOST=mail.hosting.reg.ru
+EMAIL_PORT=465
+EMAIL_HOST_USER=noreply@talents-hub.online
+EMAIL_HOST_PASSWORD=<mailbox password; server only>
+EMAIL_USE_TLS=false
+EMAIL_USE_SSL=true
+EMAIL_TIMEOUT=15
 ```
 
-Create the API key with the `yc.postbox.send` scope and give its service account the
-`postbox.sender` role. Configure the Postbox-generated DKIM records; SPF and DMARC are also
-recommended before sending real onboarding emails. After DNS verifies, send a registration and
-password-reset test to external mailboxes.
+Keep the mailbox password only in the server's `.env.production`; never commit it. Publish the
+REG.RU-generated DKIM record and verify the domain's single SPF record and DMARC policy. After DNS
+verifies, send registration and password-reset tests to external mailboxes.

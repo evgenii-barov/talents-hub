@@ -7,17 +7,19 @@
 После появления домена нужно задать в `backend/.env`:
 
 ```dotenv
-FRONTEND_URL=https://your-domain.example
-DEFAULT_FROM_EMAIL=noreply@your-domain.example
+FRONTEND_URL=https://talents-hub.online
+DEFAULT_FROM_EMAIL=Talents Hub <noreply@talents-hub.online>
 DJANGO_EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
-EMAIL_HOST=smtp.provider.example
-EMAIL_PORT=587
-EMAIL_HOST_USER=...
+EMAIL_HOST=mail.hosting.reg.ru
+EMAIL_PORT=465
+EMAIL_HOST_USER=noreply@talents-hub.online
 EMAIL_HOST_PASSWORD=...
-EMAIL_USE_TLS=true
+EMAIL_USE_TLS=false
+EMAIL_USE_SSL=true
+EMAIL_TIMEOUT=15
 ```
 
-Подойдёт SMTP-провайдер или Yandex Cloud Postbox с SMTP-совместимыми реквизитами. Логика писем уже отделена в `apps/users/emails.py`, поэтому менять API и frontend не потребуется.
+Пароль ящика хранится только в серверном `.env.production` и не коммитится в Git. Логика писем находится в `apps/users/emails.py`, а фирменные HTML/plain-text шаблоны — в `backend/templates/emails/`, поэтому менять API и frontend не требуется.
 
 ## Новые пользовательские маршруты
 
