@@ -43,9 +43,7 @@
 	encode zstd gzip
 
 	@admin_root path /
-	handle @admin_root {
-		redir /admin/ 302
-	}
+	redir @admin_root /admin/ 302
 
 	@django_admin path /admin /admin/* /static/*
 	handle @django_admin {
