@@ -198,12 +198,30 @@ def validate(values: dict[str, str], *, strict_external: bool) -> tuple[list[str
         message = "SMTP is not configured; registration emails will only appear in backend logs"
         (errors if strict_external else warnings).append(message)
     elif email_backend.endswith("smtp.EmailBackend"):
-        for key in ("DEFAULT_FROM_EMAIL", "EMAIL_HOST", "EMAIL_HOST_USER", "EMAIL_HOST_PASSWORD"):
+        for key in ("DEFAULT_FROM_EMAIL", "EMAIL_HOST", "EMAIL_HOST_USER"):
             value = values.get(key, "")
             if not value:
                 errors.append(f"{key} is required when SMTP is enabled")
             elif "replace-me" in value.lower():
                 errors.append(f"{key} still contains a replace-me placeholder")
+
+        email_password = values.get("EMAIL_HOST_PASSWORD", "")
+        smtp_password_file = values.get("SMTP_PASSWORD_FILE", "")
+        email_password_file = values.get("EMAIL_HOST_PASSWORD_FILE", "")
+        if email_password:
+            if "replace-me" in email_password.lower():
+                errors.append("EMAIL_HOST_PASSWORD still contains a replace-me placeholder")
+        elif not smtp_password_file or not email_password_file:
+            errors.append(
+                "SMTP_PASSWORD_FILE and EMAIL_HOST_PASSWORD_FILE are required when the SMTP "
+                "password is provided as a Docker secret"
+            )
+        else:
+            password_path = Path(smtp_password_file)
+            if not password_path.is_file():
+                errors.append(f"SMTP_PASSWORD_FILE does not exist: {smtp_password_file}")
+            elif password_path.stat().st_size == 0:
+                errors.append("SMTP_PASSWORD_FILE must not be empty")
 
         try:
             email_port = int(values.get("EMAIL_PORT", ""))

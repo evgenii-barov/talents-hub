@@ -56,6 +56,8 @@ services:
       - "8000"
     volumes:
       - media_data:/app/media
+    secrets:
+      - smtp_password
     networks:
       - edge
       - data
@@ -85,6 +87,8 @@ services:
       DJANGO_SETTINGS_MODULE: config.settings.production
       RUN_MIGRATIONS: "0"
     command: celery -A config worker --loglevel=INFO
+    secrets:
+      - smtp_password
     networks:
       - edge
       - data
@@ -253,3 +257,7 @@ volumes:
   glitchtip_postgres_data:
   glitchtip_valkey_data:
   glitchtip_uploads:
+
+secrets:
+  smtp_password:
+    file: ${SMTP_PASSWORD_FILE:-./secrets/smtp_password}

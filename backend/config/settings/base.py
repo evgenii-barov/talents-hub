@@ -168,7 +168,16 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@localhost")
 EMAIL_HOST = env("EMAIL_HOST", default="")
 EMAIL_PORT = env.int("EMAIL_PORT", default=587)
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+EMAIL_HOST_PASSWORD_FILE = env("EMAIL_HOST_PASSWORD_FILE", default="")
+if EMAIL_HOST_PASSWORD_FILE:
+    try:
+        EMAIL_HOST_PASSWORD = Path(EMAIL_HOST_PASSWORD_FILE).read_text(encoding="utf-8").strip()
+    except OSError as exc:
+        raise ImproperlyConfigured(
+            f"Unable to read EMAIL_HOST_PASSWORD_FILE: {EMAIL_HOST_PASSWORD_FILE}"
+        ) from exc
+else:
+    EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
 EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=False)
 EMAIL_TIMEOUT = env.int("EMAIL_TIMEOUT", default=15)

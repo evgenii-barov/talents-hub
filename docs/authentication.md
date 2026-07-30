@@ -76,12 +76,16 @@ DEFAULT_FROM_EMAIL=Talents Hub <noreply@talents-hub.online>
 EMAIL_HOST=mail.hosting.reg.ru
 EMAIL_PORT=465
 EMAIL_HOST_USER=noreply@talents-hub.online
-EMAIL_HOST_PASSWORD=<mailbox password; server only>
+SMTP_PASSWORD_FILE=/root/talents-hub-smtp-password
+EMAIL_HOST_PASSWORD_FILE=/run/secrets/smtp_password
+EMAIL_HOST_PASSWORD=
 EMAIL_USE_TLS=false
 EMAIL_USE_SSL=true
 EMAIL_TIMEOUT=15
 ```
 
-Keep the mailbox password only in the server's `.env.production`; never commit it. Publish the
-REG.RU-generated DKIM record and verify the domain's single SPF record and DMARC policy. After DNS
-verifies, send registration and password-reset tests to external mailboxes.
+Keep the mailbox password in the root-owned `SMTP_PASSWORD_FILE` with mode `600`; Docker mounts it
+read-only at `EMAIL_HOST_PASSWORD_FILE`. Never commit it or put it directly into a Compose
+environment variable. Publish the REG.RU-generated DKIM record and verify the domain's single SPF
+record and DMARC policy. After DNS verifies, send registration and password-reset tests to external
+mailboxes.
