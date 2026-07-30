@@ -125,6 +125,96 @@ services:
       retries: 10
       start_period: 20s
 
+  glitchtip-db:
+    <<: *service-defaults
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${GLITCHTIP_POSTGRES_DB}
+      POSTGRES_USER: ${GLITCHTIP_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${GLITCHTIP_POSTGRES_PASSWORD}
+    volumes:
+      - glitchtip_postgres_data:/var/lib/postgresql/data
+    networks:
+      - monitoring
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  glitchtip-valkey:
+    <<: *service-defaults
+    image: valkey/valkey:9
+    volumes:
+      - glitchtip_valkey_data:/data
+    networks:
+      - monitoring
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  glitchtip:
+    <<: *service-defaults
+    image: glitchtip/glitchtip:6
+    expose:
+      - "8000"
+    environment:
+      DATABASE_URL: ${GLITCHTIP_DATABASE_URL}
+      VALKEY_URL: redis://glitchtip-valkey:6379/0
+      SECRET_KEY: ${GLITCHTIP_SECRET_KEY}
+      EMAIL_URL: consolemail://
+      DEFAULT_FROM_EMAIL: ${GLITCHTIP_DEFAULT_FROM_EMAIL}
+      GLITCHTIP_DOMAIN: ${GLITCHTIP_DOMAIN}
+      ALLOWED_HOSTS: ${GLITCHTIP_ALLOWED_HOSTS}
+      CSRF_TRUSTED_ORIGINS: ${GLITCHTIP_CSRF_TRUSTED_ORIGINS}
+      SERVER_ROLE: all_in_one
+      ENABLE_ADMIN: "False"
+      ENABLE_OPENAPI: "False"
+      ENABLE_USER_REGISTRATION: "False"
+      ENABLE_SOCIAL_APPS_USER_REGISTRATION: "False"
+      ENABLE_ORGANIZATION_CREATION: "False"
+      GLITCHTIP_ENABLE_LOGS: "False"
+      GLITCHTIP_ENABLE_MCP: "False"
+      GLITCHTIP_ENABLE_DUCKDB: "False"
+      GLITCHTIP_RETENTION_DAYS: "30"
+      GLITCHTIP_EVENT_HOT_DAYS: "14"
+      GLITCHTIP_TRANSACTION_RETENTION_DAYS: "14"
+      GLITCHTIP_UPTIME_RETENTION_DAYS: "30"
+      GLITCHTIP_FILE_RETENTION_DAYS: "30"
+      VTASKS_CONCURRENCY: "4"
+      DATABASE_POOL_MAX_SIZE: "4"
+      GRANIAN_WORKERS: "1"
+      SECURE_HSTS_SECONDS: "31536000"
+      SECURE_HSTS_INCLUDE_SUBDOMAINS: "True"
+    volumes:
+      - glitchtip_uploads:/code/uploads
+    networks:
+      - edge
+      - monitoring
+    depends_on:
+      glitchtip-db:
+        condition: service_healthy
+      glitchtip-valkey:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import os; from urllib.parse import urlparse; from urllib.request import Request, urlopen; host = urlparse(os.environ['GLITCHTIP_DOMAIN']).hostname; urlopen(Request('http://127.0.0.1:8000/', headers={'Host': host, 'X-Forwarded-Proto': 'https'}), timeout=5)",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+
   caddy:
     <<: *service-defaults
     image: caddy:2-alpine
@@ -151,6 +241,8 @@ networks:
   edge:
   data:
     internal: true
+  monitoring:
+    internal: true
 
 volumes:
   postgres_data:
@@ -158,3 +250,6 @@ volumes:
   media_data:
   caddy_data:
   caddy_config:
+  glitchtip_postgres_data:
+  glitchtip_valkey_data:
+  glitchtip_uploads:

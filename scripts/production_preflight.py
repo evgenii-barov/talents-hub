@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 REQUIRED = (
     "SITE_ADDRESS",
     "WWW_SITE_ADDRESS",
+    "ADMIN_SITE_ADDRESS",
     "PUBLIC_SITE_URL",
     "PUBLIC_API_URL",
     "POSTGRES_DB",
@@ -23,6 +24,15 @@ REQUIRED = (
     "CELERY_BROKER_URL",
     "CELERY_RESULT_BACKEND",
     "FRONTEND_URL",
+    "GLITCHTIP_DOMAIN",
+    "GLITCHTIP_ALLOWED_HOSTS",
+    "GLITCHTIP_CSRF_TRUSTED_ORIGINS",
+    "GLITCHTIP_SECRET_KEY",
+    "GLITCHTIP_POSTGRES_DB",
+    "GLITCHTIP_POSTGRES_USER",
+    "GLITCHTIP_POSTGRES_PASSWORD",
+    "GLITCHTIP_DATABASE_URL",
+    "GLITCHTIP_DEFAULT_FROM_EMAIL",
 )
 
 
@@ -95,14 +105,36 @@ def validate(values: dict[str, str], *, strict_external: bool) -> tuple[list[str
     elif public_host and www_site_parsed.hostname != f"www.{public_host}":
         errors.append("WWW_SITE_ADDRESS hostname must be www.PUBLIC_SITE_URL hostname")
 
+    admin_site_address = values.get("ADMIN_SITE_ADDRESS", "")
+    admin_site_parsed = urlparse(
+        admin_site_address if "://" in admin_site_address else f"//{admin_site_address}"
+    )
+    admin_host = admin_site_parsed.hostname
+    if not admin_host:
+        errors.append("ADMIN_SITE_ADDRESS must contain a valid hostname for Caddy")
+    elif public_host and admin_host == public_host:
+        errors.append("ADMIN_SITE_ADDRESS must use a separate hostname")
+
     allowed_hosts = {host.strip() for host in values.get("DJANGO_ALLOWED_HOSTS", "").split(",")}
     if public_host and public_host not in allowed_hosts:
         errors.append("DJANGO_ALLOWED_HOSTS must include the PUBLIC_SITE_URL hostname")
+    if admin_host and admin_host not in allowed_hosts:
+        errors.append("DJANGO_ALLOWED_HOSTS must include the ADMIN_SITE_ADDRESS hostname")
 
     for key in ("DJANGO_CORS_ALLOWED_ORIGINS", "DJANGO_CSRF_TRUSTED_ORIGINS"):
         origins = {origin.strip().rstrip("/") for origin in values.get(key, "").split(",")}
         if public_url and public_url not in origins:
             errors.append(f"{key} must include PUBLIC_SITE_URL")
+
+    csrf_origins = {
+        origin.strip().rstrip("/")
+        for origin in values.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
+    }
+    admin_origin = ""
+    if admin_site_parsed.scheme and admin_site_parsed.netloc:
+        admin_origin = f"{admin_site_parsed.scheme}://{admin_site_parsed.netloc}".rstrip("/")
+    if admin_origin and admin_origin not in csrf_origins:
+        errors.append("DJANGO_CSRF_TRUSTED_ORIGINS must include ADMIN_SITE_ADDRESS")
 
     public_https = public_parsed.scheme == "https"
     if public_https:
@@ -130,13 +162,44 @@ def validate(values: dict[str, str], *, strict_external: bool) -> tuple[list[str
         if "@redis:" not in values.get(key, ""):
             errors.append(f"{key} must use the password-protected internal Docker host redis")
 
+    glitchtip_domain = values.get("GLITCHTIP_DOMAIN", "").rstrip("/")
+    glitchtip_parsed = urlparse(glitchtip_domain)
+    glitchtip_host = glitchtip_parsed.hostname
+    if glitchtip_parsed.scheme not in {"http", "https"} or not glitchtip_host:
+        errors.append("GLITCHTIP_DOMAIN must be an absolute HTTP(S) URL")
+    elif glitchtip_parsed.path not in {"", "/"}:
+        errors.append("GLITCHTIP_DOMAIN must be an origin without a path")
+    elif glitchtip_host in {public_host, admin_host}:
+        errors.append("GLITCHTIP_DOMAIN must use a separate hostname")
+
+    glitchtip_allowed_hosts = {
+        host.strip() for host in values.get("GLITCHTIP_ALLOWED_HOSTS", "").split(",")
+    }
+    if glitchtip_host and glitchtip_host not in glitchtip_allowed_hosts:
+        errors.append("GLITCHTIP_ALLOWED_HOSTS must include the GLITCHTIP_DOMAIN hostname")
+    if "*" in glitchtip_allowed_hosts:
+        errors.append("GLITCHTIP_ALLOWED_HOSTS must not contain a wildcard")
+
+    glitchtip_csrf_origins = {
+        origin.strip().rstrip("/")
+        for origin in values.get("GLITCHTIP_CSRF_TRUSTED_ORIGINS", "").split(",")
+    }
+    if glitchtip_domain and glitchtip_domain not in glitchtip_csrf_origins:
+        errors.append("GLITCHTIP_CSRF_TRUSTED_ORIGINS must include GLITCHTIP_DOMAIN")
+
+    glitchtip_secret = values.get("GLITCHTIP_SECRET_KEY", "")
+    if len(glitchtip_secret) < 50 or len(set(glitchtip_secret)) < 8:
+        errors.append("GLITCHTIP_SECRET_KEY must be a random value of at least 50 characters")
+    if "@glitchtip-db:" not in values.get("GLITCHTIP_DATABASE_URL", ""):
+        errors.append("GLITCHTIP_DATABASE_URL must use the internal Docker host glitchtip-db")
+
     if values.get("DJANGO_EMAIL_BACKEND", "").endswith("console.EmailBackend"):
         message = "SMTP is not configured; registration emails will only appear in backend logs"
         (errors if strict_external else warnings).append(message)
     if values.get("USE_S3", "false").lower() != "true":
         warnings.append("S3 is not configured; uploads will use the persistent server volume")
     if not values.get("SENTRY_DSN"):
-        warnings.append("Sentry is not configured; rely on container logs until it is connected")
+        warnings.append("GlitchTip DSN is not configured; add it after creating the GlitchTip project")
 
     return errors, warnings
 

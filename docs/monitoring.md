@@ -1,38 +1,65 @@
 # Мониторинг MVP
 
-## Sentry
+## Self-hosted GlitchTip
 
-Backend уже готов к Sentry. Интеграция охватывает Django и Celery, поэтому в одном проекте будут видны HTTP-ошибки, фоновые задачи и их stack trace.
+Production использует [GlitchTip](https://glitchtip.com/documentation/install/) — свободный
+Sentry-совместимый сервер ошибок. Он доступен только через `errors.talents-hub.online`, хранит
+данные в отдельных PostgreSQL и Valkey и не публикует их порты наружу.
 
-1. Создайте в Sentry проект **Python / Django** с именем `talents-hub-backend`.
-2. Скопируйте его DSN в неотслеживаемый `backend/.env` или в секреты окружения deployment.
-3. Для production задайте:
+Контейнер запускается в all-in-one режиме. В production отключены открытая регистрация после
+создания первого пользователя, social signup, OpenAPI, MCP, cold storage и сбор логов. Ошибки
+хранятся 30 дней, транзакции — 14 дней. SMTP не требуется: уведомления можно позднее направить
+в webhook.
+
+После первого запуска создайте администратора GlitchTip:
+
+```bash
+docker compose --env-file .env.production -f compose.production.yaml \
+  exec glitchtip ./manage.py createsuperuser
+```
+
+Затем войдите на `https://errors.talents-hub.online`, создайте организацию и проект
+`talents-hub-backend`, скопируйте DSN проекта в `.env.production`:
 
 ```dotenv
-SENTRY_DSN=https://…
+SENTRY_DSN=https://<public-key>@errors.talents-hub.online/<project-id>
 SENTRY_ENVIRONMENT=production
 SENTRY_RELEASE=backend@<git-sha>
-SENTRY_TRACES_SAMPLE_RATE=0.1
+SENTRY_TRACES_SAMPLE_RATE=0.01
 SENTRY_PROFILES_SAMPLE_RATE=0.0
 ```
 
-`SENTRY_DSN` оставляют пустым в локальной разработке. SDK не инициализируется, не делает сетевых запросов и не мешает тестам. В staging можно временно поставить `SENTRY_TRACES_SAMPLE_RATE=1.0`, чтобы увидеть все запросы; в production достаточно 0.1 на старте.
+После изменения DSN пересоздайте backend и Celery:
 
-В коде выключена отправка PII (`send_default_pii=False`): SDK не прикладывает IP, cookies или стандартные персональные данные к событиям.
+```bash
+docker compose --env-file .env.production -f compose.production.yaml \
+  up -d --force-recreate backend celery
+```
 
-## Что настроить в Sentry
+SDK охватывает Django и Celery. Отправка PII и автоматическое отслеживание сессий отключены;
+GlitchTip не получает стандартные персональные данные, IP и cookies. Пустой `SENTRY_DSN`
+полностью отключает SDK.
 
-- Alert: новая ошибка (`first seen`) в `production`.
-- Alert: любая нерешённая ошибка с уровнем `error` в течение 10 минут.
-- Alert: падение или повторные ошибки Celery-задачи `apps.notifications.tasks.process_outbox_event`.
-- Release health и performance для релизов, в которых задан `SENTRY_RELEASE`.
+## Проверка события
 
-## Frontend
+Отправьте контролируемое событие из Django shell:
 
-При следующем этапе создайте отдельный проект **JavaScript / Next.js**: `talents-hub-frontend`. Его публичный DSN будет храниться в `NEXT_PUBLIC_SENTRY_DSN`; sourcemaps и release будут подключены во время frontend-интеграции. Backend и frontend не должны использовать один Sentry-проект: так проще разделять владельцев ошибок, алерты и релизы.
+```bash
+docker compose --env-file .env.production -f compose.production.yaml exec backend \
+  python manage.py shell -c "import sentry_sdk; sentry_sdk.capture_message('Talents Hub production test')"
+```
 
-## Локальная проверка состояния
+Убедитесь, что событие появилось в проекте с окружением `production`, после чего пометьте его
+resolved. Не создавайте намеренно HTTP 500 на публичном endpoint.
+
+## Алерты
+
+В проекте GlitchTip создайте alert для новой ошибки и добавьте webhook-получателя. SMTP пока не
+настроен, поэтому email-уведомления GlitchTip будут только выводиться в логи контейнера.
+
+## Локальные health-checks
 
 - `GET /api/health/` — доступность Django;
-- `docker compose ps` — статусы Django, Celery, PostgreSQL, Redis и frontend;
-- `/api/docs/` — доступность API-схемы.
+- `GET /api/ready/` — готовность Django и его зависимостей;
+- `docker compose ... ps` — состояние приложения и мониторинга;
+- `https://errors.talents-hub.online` — интерфейс GlitchTip.

@@ -250,6 +250,7 @@ if SENTRY_DSN:
         release=SENTRY_RELEASE or None,
         integrations=[DjangoIntegration(), CeleryIntegration()],
         send_default_pii=False,
+        auto_session_tracking=False,
         traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
         profiles_sample_rate=SENTRY_PROFILES_SAMPLE_RATE,
     )
