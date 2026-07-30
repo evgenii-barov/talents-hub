@@ -161,7 +161,7 @@ services:
 
   glitchtip:
     <<: *service-defaults
-    image: glitchtip/glitchtip:6
+    image: registry.gitlab.com/glitchtip/glitchtip:6
     expose:
       - "8000"
     environment:
