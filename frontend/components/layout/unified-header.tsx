@@ -432,9 +432,19 @@ function MobileNavigation({
   session: Session;
   logout: () => Promise<void>;
 }) {
-  const { t } = useLocale();
+  const { t, tr } = useLocale();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
 
   function closeMenu() {
     setOpen(false);
@@ -461,7 +471,18 @@ function MobileNavigation({
         <Menu aria-hidden="true" size={20} />
       </button>
       {open ? (
-        <div className="fixed inset-x-4 top-[calc(4.5rem+env(safe-area-inset-top))] z-50 w-auto rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-3 shadow-lg sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:w-72">
+        <>
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-label={tr("Close menu", "Закрыть меню")}
+            className="fixed inset-0 z-40 bg-slate-950/20 sm:hidden"
+            onClick={() => {
+              closeMenu();
+              triggerRef.current?.focus();
+            }}
+          />
+          <div className="fixed inset-x-4 top-[calc(4.5rem+env(safe-area-inset-top))] z-50 max-h-[calc(100dvh-6rem)] w-auto overflow-y-auto overscroll-contain rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-3 shadow-lg sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:max-h-[calc(100dvh-5rem)] sm:w-72">
           <nav
             id="mobile-primary-navigation"
             aria-label={t("mainNavigation")}
@@ -542,7 +563,8 @@ function MobileNavigation({
               </Link>
             )}
           </div>
-        </div>
+          </div>
+        </>
       ) : null}
     </div>
   );
@@ -601,7 +623,7 @@ export function UnifiedHeader() {
         pathname === "/" && "home-header-intro",
       )}
     >
-      <div className="mx-auto flex h-full max-w-[1440px] items-center px-6 lg:px-12">
+      <div className="mx-auto flex h-full max-w-[1440px] items-center px-4 sm:px-6 lg:px-12">
         <Link
           href="/"
           aria-label={t("brand")}

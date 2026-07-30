@@ -12,6 +12,11 @@ export class ApiError extends Error {
 export const AUTH_REQUIRED_EVENT = "talents-hub:auth-required";
 
 export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api").replace(/\/$/, "");
+const INTERNAL_API_URL = (process.env.INTERNAL_API_URL ?? API_URL).replace(/\/$/, "");
+
+function requestApiUrl(): string {
+  return typeof window === "undefined" ? INTERNAL_API_URL : API_URL;
+}
 
 type RequestOptions = Omit<RequestInit, "body"> & { body?: unknown };
 
@@ -41,7 +46,7 @@ export async function getCsrfToken(): Promise<string | undefined> {
   let token = getCookie("csrftoken");
   if (token) return token;
 
-  const response = await fetch(`${API_URL}/csrf/`, { credentials: "include" });
+  const response = await fetch(`${requestApiUrl()}/csrf/`, { credentials: "include" });
   const payload: unknown = await response.json().catch(() => null);
   token = getCookie("csrftoken");
   if (token) return token;
@@ -62,7 +67,7 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     if (csrfToken) headers.set("X-CSRFToken", csrfToken);
   }
 
-  const response = await fetch(`${API_URL}${path}`, {
+  const response = await fetch(`${requestApiUrl()}${path}`, {
     ...options,
     body: hasBody ? JSON.stringify(options.body) : undefined,
     credentials: "include",
@@ -91,7 +96,7 @@ export async function apiFormFetch<T>(path: string, body: FormData, options: Omi
     const csrfToken = await getCsrfToken();
     if (csrfToken) headers.set("X-CSRFToken", csrfToken);
   }
-  const response = await fetch(`${API_URL}${path}`, { ...options, method, body, credentials: "include", headers });
+  const response = await fetch(`${requestApiUrl()}${path}`, { ...options, method, body, credentials: "include", headers });
   if (!response.ok) {
     const payload: unknown = await response.json().catch(() => null);
     const message = typeof payload === "object" && payload !== null && "detail" in payload ? String(payload.detail) : "Request failed";

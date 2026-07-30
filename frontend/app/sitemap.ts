@@ -6,6 +6,7 @@ import { getProfilesPage } from "@/lib/profiles";
 import { getProjectsPage } from "@/lib/projects";
 import { absoluteUrl } from "@/lib/seo";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
 const maxCataloguePages = 100;

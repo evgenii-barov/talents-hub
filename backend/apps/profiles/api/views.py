@@ -50,6 +50,7 @@ from .serializers import (
 class ProfileViewSet(viewsets.ReadOnlyModelViewSet[Profile]):
     """Public catalogue: private, unpublished, and deleted profiles never appear."""
 
+    permission_classes = (permissions.AllowAny,)
     serializer_class = ProfilePublicSerializer
     lookup_field = "slug"
     pagination_class = CataloguePagination

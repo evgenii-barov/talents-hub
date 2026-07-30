@@ -47,6 +47,7 @@ Production-код MVP развивается в `main`. Ранний стати�
 - [API-контракт MVP](docs/api.md)
 - [Мониторинг и Sentry](docs/monitoring.md)
 - [Frontend: запуск и соглашения](frontend/README.md)
+- [Production deployment](docs/deployment.md)
 
 ## Ветки
 

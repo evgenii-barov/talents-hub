@@ -109,14 +109,31 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "users.User"
 SITE_ID = 1
 
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    },
+}
+
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.AllowAny",
+        "rest_framework.permissions.IsAuthenticated",
     ],
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": env("DRF_ANON_THROTTLE_RATE", default="120/minute"),
+        "user": env("DRF_USER_THROTTLE_RATE", default="600/minute"),
+        "auth": env("DRF_AUTH_THROTTLE_RATE", default="10/minute"),
+        "account_email": env("DRF_ACCOUNT_EMAIL_THROTTLE_RATE", default="5/hour"),
+    },
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
         "rest_framework.filters.SearchFilter",
@@ -134,10 +151,14 @@ SPECTACULAR_SETTINGS = {
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = env.list("DJANGO_CORS_ALLOWED_ORIGINS", default=[])
 CSRF_TRUSTED_ORIGINS = env.list("DJANGO_CSRF_TRUSTED_ORIGINS", default=[])
+ENABLE_API_DOCS = env.bool("ENABLE_API_DOCS", default=DEBUG)
 
 ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+# The custom User model authenticates by email and intentionally has no username column.
+# django-allauth otherwise defaults to looking up a field named "username" during social signup.
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 
 EMAIL_BACKEND = env(
     "DJANGO_EMAIL_BACKEND",
@@ -153,6 +174,7 @@ EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=False)
 EMAIL_TIMEOUT = env.int("EMAIL_TIMEOUT", default=15)
 FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000").rstrip("/")
 LOGIN_REDIRECT_URL = f"{FRONTEND_URL}/profile"
+SOCIAL_AUTH_ENABLED = env.bool("SOCIAL_AUTH_ENABLED", default=True)
 
 
 def social_provider_app(prefix: str) -> list[dict[str, str]]:
@@ -242,5 +264,7 @@ if USE_S3:
     AWS_QUERYSTRING_AUTH = True
     STORAGES = {
         "default": {"BACKEND": "storages.backends.s3.S3Storage"},
-        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        },
     }

@@ -37,8 +37,8 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="flex min-h-[calc(100vh-72px)] items-center justify-center bg-[var(--color-background)] px-6">
-      <form onSubmit={submit} className="w-full max-w-[420px] rounded-xl border border-[var(--color-border)] bg-white p-7 shadow-[0_8px_24px_rgba(16,27,56,0.08)]">
+    <main className="flex min-h-[calc(100vh-72px)] items-center justify-center bg-[var(--color-background)] px-4 sm:px-6">
+      <form onSubmit={submit} className="w-full max-w-[420px] rounded-xl border border-[var(--color-border)] bg-white p-5 shadow-[0_8px_24px_rgba(16,27,56,0.08)] sm:p-7">
         <p className="font-inter text-[11px] font-bold tracking-[0.08em] text-[var(--color-primary)]">{tr("CREATE PROFILE", "СОЗДАНИЕ ПРОФИЛЯ")}</p>
         <h1 className="mt-2 font-geist text-[28px] font-[650]">{tr("Join Talents Hub", "Присоединяйтесь к Talents Hub")}</h1>
         <p className="mt-2 font-inter text-sm text-[var(--color-muted)]">{tr("Confirm your email to activate your account and start building a profile.", "Подтвердите e-mail, чтобы активировать аккаунт и начать создавать профиль.")}</p>

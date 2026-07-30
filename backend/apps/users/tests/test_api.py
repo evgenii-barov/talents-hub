@@ -1,4 +1,5 @@
 import pytest
+from django.core.cache import cache
 from django.test import Client
 from django.urls import reverse
 
@@ -20,3 +21,21 @@ def test_login_creates_a_session_and_logout_clears_it(client: Client) -> None:
     assert login_response.status_code == 200
     assert session_response.json()["authenticated"] is True
     assert logout_response.json() == {"authenticated": False}
+
+
+@pytest.mark.django_db
+def test_password_reset_request_is_rate_limited(client: Client) -> None:
+    cache.clear()
+    responses = [
+        client.post(
+            reverse("auth-password-reset"),
+            {"email": "unknown@example.com"},
+            content_type="application/json",
+            REMOTE_ADDR="198.51.100.10",
+        )
+        for _ in range(6)
+    ]
+    cache.clear()
+
+    assert [response.status_code for response in responses[:5]] == [204] * 5
+    assert responses[5].status_code == 429

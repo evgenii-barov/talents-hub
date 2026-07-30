@@ -4,6 +4,7 @@ import { Github } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { useLocale } from "@/components/i18n/locale-provider";
+import { Button } from "@/components/ui/button";
 import { getCsrfToken } from "@/lib/api";
 import { getSocialLoginProviders, type SocialLoginProvider } from "@/lib/auth";
 
@@ -12,7 +13,7 @@ function GoogleMark() {
 }
 
 function ProviderIcon({ id }: { id: SocialLoginProvider["id"] }) {
-  return id === "google" ? <GoogleMark /> : <Github size={17} />;
+  return id === "google" ? <GoogleMark /> : <Github aria-hidden="true" className="size-4" />;
 }
 
 export function SocialLoginButtons() {
@@ -54,10 +55,25 @@ export function SocialLoginButtons() {
   return (
     <div className="mt-6">
       <div className="flex items-center gap-3"><span className="h-px flex-1 bg-[var(--color-border)]" /><span className="font-inter text-[11px] font-medium text-[var(--color-muted)]">{tr("or", "или")}</span><span className="h-px flex-1 bg-[var(--color-border)]" /></div>
-      <div className="mt-4 grid gap-2 sm:grid-cols-2">
-        {providers.map((provider) => <button key={provider.id} type="button" disabled={starting !== null} onClick={() => void begin(provider)} className="flex h-10 items-center justify-center gap-2 rounded-md border border-[var(--color-border)] bg-white font-inter text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-neutral-50 disabled:cursor-wait disabled:opacity-60"><ProviderIcon id={provider.id} />{starting === provider.id ? tr("Opening…", "Открываем…") : `${tr("Continue with", "Продолжить через")} ${provider.id === "google" ? "Google" : "GitHub"}`}</button>)}
+      <div className="mt-4 grid gap-2">
+        {providers.map((provider) => (
+          <Button
+            key={provider.id}
+            type="button"
+            variant="outline"
+            size="lg"
+            disabled={starting !== null}
+            onClick={() => void begin(provider)}
+            className="w-full bg-white font-inter"
+          >
+            <ProviderIcon id={provider.id} />
+            {starting === provider.id
+              ? tr("Opening…", "Открываем…")
+              : `${tr("Continue with", "Продолжить через")} ${provider.id === "google" ? "Google" : "GitHub"}`}
+          </Button>
+        ))}
       </div>
-      {error ? <p className="mt-3 font-inter text-xs text-red-700">{error}</p> : null}
+      {error ? <p aria-live="polite" className="mt-3 font-inter text-xs text-red-700">{error}</p> : null}
     </div>
   );
 }

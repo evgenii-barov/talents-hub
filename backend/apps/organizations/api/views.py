@@ -1,6 +1,6 @@
 from django.db.models import Q, QuerySet
 from django_filters.rest_framework import DjangoFilterBackend  # type: ignore[import-untyped]
-from rest_framework import viewsets
+from rest_framework import permissions, viewsets
 from rest_framework.filters import OrderingFilter
 
 from apps.common.pagination import CataloguePagination
@@ -11,6 +11,7 @@ from .serializers import OrganizationPublicSerializer
 
 
 class OrganizationViewSet(viewsets.ReadOnlyModelViewSet[Organization]):
+    permission_classes = (permissions.AllowAny,)
     serializer_class = OrganizationPublicSerializer
     lookup_field = "slug"
     pagination_class = CataloguePagination

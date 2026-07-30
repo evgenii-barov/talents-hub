@@ -494,7 +494,7 @@ export default function Home() {
               </span>
               <h1
                 style={{ "--intro-delay": "230ms" } as CSSProperties}
-                className="home-hero-intro mt-5 whitespace-pre-line font-geist text-[42px] font-bold leading-[1.05] tracking-[-0.03em] sm:text-[45px]"
+                className="home-hero-intro mt-5 whitespace-pre-line font-geist text-[clamp(2rem,10.5vw,2.625rem)] font-bold leading-[1.05] tracking-[-0.03em] sm:text-[45px]"
               >
                 {tr({
                   en: "Expertise across borders.\nCollaboration in action.",

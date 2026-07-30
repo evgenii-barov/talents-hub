@@ -26,6 +26,7 @@ from .serializers import (
 
 
 class ProjectViewSet(viewsets.ReadOnlyModelViewSet[Project]):
+    permission_classes = (permissions.AllowAny,)
     serializer_class = ProjectPublicSerializer
     lookup_field = "slug"
     pagination_class = CataloguePagination

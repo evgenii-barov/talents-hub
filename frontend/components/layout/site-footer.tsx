@@ -14,7 +14,7 @@ export function SiteFooter() {
       className="scroll-reveal bg-[var(--color-hero)] py-9 text-white"
     >
       <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
-        <div className="flex flex-wrap items-center justify-between gap-5">
+        <div className="flex flex-col items-start gap-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <Link
             href="/"
             className="flex items-center gap-2.5 font-inter text-base font-bold"
@@ -24,7 +24,7 @@ export function SiteFooter() {
           </Link>
           <nav
             aria-label={tr("Footer navigation", "Навигация в подвале")}
-            className="flex flex-wrap justify-end gap-x-6 gap-y-3 font-inter text-sm text-blue-200"
+            className="flex flex-wrap justify-start gap-x-6 gap-y-3 font-inter text-sm text-blue-200 sm:justify-end"
           >
             <Link href="/projects">{tr("Projects", "Проекты")}</Link>
             <Link href="/talents">{tr("Talent", "Таланты")}</Link>

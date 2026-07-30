@@ -22,6 +22,9 @@ htmlcov/
 backend/staticfiles/
 backend/media/
 backend/.env
+.env.production
+.env.production.*
+!.env.production.example
 frontend/.env.local
 frontend/node_modules/
 frontend/.next/
@@ -31,6 +34,7 @@ frontend/.playwright-cli/
 frontend/.pw-daemon/
 frontend/output/
 outputs/
+backups/
 
 # Docker and OS
 .docker/

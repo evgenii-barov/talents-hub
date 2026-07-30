@@ -29,8 +29,8 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <main className="flex min-h-[calc(100vh-72px)] items-center justify-center bg-[var(--color-background)] px-6">
-      <form onSubmit={submit} className="w-full max-w-[420px] rounded-xl border border-[var(--color-border)] bg-white p-7 shadow-[0_8px_24px_rgba(16,27,56,0.08)]">
+    <main className="flex min-h-[calc(100vh-72px)] items-center justify-center bg-[var(--color-background)] px-4 sm:px-6">
+      <form onSubmit={submit} className="w-full max-w-[420px] rounded-xl border border-[var(--color-border)] bg-white p-5 shadow-[0_8px_24px_rgba(16,27,56,0.08)] sm:p-7">
         <h1 className="font-geist text-[28px] font-[650]">{tr("Reset password", "Сброс пароля")}</h1>
         <p className="mt-2 font-inter text-sm text-[var(--color-muted)]">{tr("Enter the email used for Talents Hub.", "Введите e-mail, указанный при регистрации в Talents Hub.")}</p>
         {message ? <p className="mt-5 rounded-md bg-[var(--color-soft-blue)] p-3 font-inter text-sm text-[var(--color-primary)]">{message}</p> : null}

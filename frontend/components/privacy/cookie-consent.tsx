@@ -36,17 +36,17 @@ export function CookieConsent() {
   return (
     <aside
       aria-label={tr("Cookie notice", "Уведомление об использовании cookies")}
-      className="fixed inset-x-4 bottom-4 z-[60] mx-auto max-w-[720px] rounded-xl border border-[var(--color-card-blue-border)] bg-white p-4 shadow-[0_18px_50px_rgba(16,27,56,0.2)] sm:p-5"
+      className="fixed inset-x-3 bottom-3 z-[60] mx-auto max-h-[calc(100dvh-1.5rem)] max-w-[720px] overflow-y-auto rounded-xl border border-[var(--color-card-blue-border)] bg-white p-3 shadow-[0_18px_50px_rgba(16,27,56,0.2)] sm:inset-x-4 sm:bottom-4 sm:p-5"
     >
       <div className="flex items-start gap-3.5">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[var(--color-soft-blue)] text-[var(--color-primary)]">
+        <span className="hidden size-10 shrink-0 items-center justify-center rounded-lg bg-[var(--color-soft-blue)] text-[var(--color-primary)] min-[360px]:flex">
           <Cookie aria-hidden="true" size={20} />
         </span>
         <div className="min-w-0 flex-1">
           <h2 className="font-geist text-base font-[650] text-[var(--color-ink)]">
             {tr("Cookies on Talents Hub", "Cookies на Talents Hub")}
           </h2>
-          <p className="mt-1.5 font-inter text-sm leading-6 text-[var(--color-muted)]">
+          <p className="mt-1.5 font-inter text-[13px] leading-5 text-[var(--color-muted)] sm:text-sm sm:leading-6">
             {tr(
               "We use cookies required for secure sign-in and stable operation of the service. By selecting “Accept”, you agree to their use.",
               "Мы используем cookies, необходимые для безопасного входа и стабильной работы сервиса. Нажимая «Принять», вы соглашаетесь с их использованием.",
@@ -63,7 +63,7 @@ export function CookieConsent() {
           {tr("Accept", "Принять")}
         </Button>
       </div>
-      <Button type="button" onClick={acceptCookies} className="mt-4 w-full sm:hidden">
+      <Button type="button" onClick={acceptCookies} className="mt-3 w-full sm:hidden">
         {tr("Accept", "Принять")}
       </Button>
     </aside>

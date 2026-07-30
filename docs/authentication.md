@@ -8,6 +8,11 @@ Talents Hub supports the following methods:
 - Google OAuth;
 - GitHub OAuth.
 
+Foreign OAuth is guarded by `SOCIAL_AUTH_ENABLED`. Production defaults this flag to `false`,
+which hides all provider buttons, returns an empty provider list, and does not mount the
+`/accounts/` OAuth routes. This fail-closed default must only be changed after a compliance
+review for the jurisdictions where the service is available.
+
 The confirmation link is deliberately used instead of a numeric email code. It is already
 implemented, contains a short-lived server-side token, and avoids an additional code-entry
 screen. Passwordless login by code is not part of this MVP.
@@ -26,6 +31,7 @@ intentional: buttons must not send users to a provider that cannot complete its 
 Set both variables for a provider to enable it:
 
 ```dotenv
+SOCIAL_AUTH_ENABLED=true
 GOOGLE_OAUTH_CLIENT_ID=...
 GOOGLE_OAUTH_CLIENT_SECRET=...
 GITHUB_OAUTH_CLIENT_ID=...
@@ -52,6 +58,8 @@ The successful callback creates the normal Django session and redirects to
    `https://<backend-public-origin>/accounts/github/login/callback/`. With a single-origin
    reverse proxy, `<backend-public-origin>` is simply your main site domain.
 4. Store both provider client IDs and secrets in deployment secrets, not in Django Admin or Git.
+   Set `SOCIAL_AUTH_ENABLED=true` only when these providers are legally available to the target
+   users; leaving stored credentials in the environment does not bypass the disabled flag.
 5. Use only identity scopes: Google `openid profile email`, GitHub `user:email`. The MVP does
    not request repository access.
 6. Verify a new account, an existing social account, cancellation at the provider, and an

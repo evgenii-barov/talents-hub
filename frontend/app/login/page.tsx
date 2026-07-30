@@ -43,8 +43,8 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-[calc(100vh-72px)] items-center justify-center bg-[var(--color-background)] px-6">
-      <form onSubmit={submit} className="w-full max-w-[420px] rounded-xl border border-[var(--color-border)] bg-white p-7 shadow-[0_8px_24px_rgba(16,27,56,0.08)]">
+    <main className="flex min-h-[calc(100vh-72px)] items-center justify-center bg-[var(--color-background)] px-4 sm:px-6">
+      <form onSubmit={submit} className="w-full max-w-[420px] rounded-xl border border-[var(--color-border)] bg-white p-5 shadow-[0_8px_24px_rgba(16,27,56,0.08)] sm:p-7">
         <p className="font-inter text-[11px] font-bold tracking-[0.08em] text-[var(--color-primary)]">{tr("SIGN IN", "ВХОД")}</p>
         <h1 className="mt-2 font-geist text-[28px] font-[650]">{tr("Welcome back", "С возвращением")}</h1>
         <p className="mt-2 font-inter text-sm text-[var(--color-muted)]">{tr("Use the email and password for your Talents Hub account.", "Используйте e-mail и пароль от аккаунта Talents Hub.")}</p>

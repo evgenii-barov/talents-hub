@@ -700,7 +700,7 @@ function ChatClient() {
           />
         ) : null}
         <section className="flex min-w-0 flex-1 flex-col bg-white">
-          <header className="flex h-[78px] shrink-0 items-center border-b border-[var(--color-border)] px-6">
+          <header className="flex h-[78px] shrink-0 items-center border-b border-[var(--color-border)] px-4 sm:px-6">
             {active || newRecipient ? (
               <>
                 <Avatar
@@ -709,7 +709,7 @@ function ChatClient() {
                   alt={activeConversationAvatar.name}
                   size="size-[42px]"
                 />
-                <div className="ml-3 min-w-0">
+                <div className="ml-3 min-w-0 flex-1">
                   {active && conversations.length ? (
                     <select
                       value={active.id}
@@ -735,13 +735,19 @@ function ChatClient() {
                   </p>
                 </div>
                 <span
-                  className={`ml-auto shrink-0 pl-3 font-inter text-xs ${realtimeConnected ? "text-emerald-600" : "text-[var(--color-muted)]"}`}
+                  className={`ml-2 inline-flex shrink-0 items-center gap-1.5 font-inter text-xs sm:ml-auto sm:pl-3 ${realtimeConnected ? "text-emerald-600" : "text-[var(--color-muted)]"}`}
                 >
-                  {realtimeConnected
-                    ? tr("Live", "Онлайн")
-                    : tr("Reconnecting…", "Переподключение…")}
+                  <span
+                    aria-hidden="true"
+                    className={`size-2 rounded-full ${realtimeConnected ? "bg-emerald-500" : "bg-neutral-400"}`}
+                  />
+                  <span className="sr-only sm:not-sr-only">
+                    {realtimeConnected
+                      ? tr("Live", "Онлайн")
+                      : tr("Reconnecting…", "Переподключение…")}
+                  </span>
                 </span>
-                <Info className="ml-3 text-[var(--color-primary)]" size={18} />
+                <Info className="ml-2 shrink-0 text-[var(--color-primary)] sm:ml-3" size={18} />
               </>
             ) : (
               <h2 className="font-inter text-[15px] font-bold text-[var(--color-ink)]">
@@ -754,7 +760,7 @@ function ChatClient() {
               {error}
             </p>
           ) : null}
-          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6">
             {active || newRecipient ? (
               <div className="space-y-5">
                 {messages.map((message) => (
@@ -821,7 +827,7 @@ function ChatClient() {
           {active || newRecipient ? (
             <form
               onSubmit={sendMessage}
-              className="m-6 flex h-[62px] shrink-0 items-center rounded-[10px] border border-[var(--color-border)] bg-white px-3"
+              className="mx-3 mb-[max(0.75rem,env(safe-area-inset-bottom))] mt-3 flex min-h-[62px] shrink-0 items-center rounded-[10px] border border-[var(--color-border)] bg-white px-2 sm:m-6 sm:px-3"
             >
               <button
                 disabled
@@ -830,7 +836,7 @@ function ChatClient() {
                   "Attachments are not available yet",
                   "Вложения пока недоступны",
                 )}
-                className="text-[var(--color-muted)]"
+                className="flex items-center justify-center text-[var(--color-muted)]"
               >
                 <Paperclip size={18} />
               </button>
@@ -858,7 +864,7 @@ function ChatClient() {
               <button
                 type="submit"
                 aria-label={tr("Send message", "Отправить сообщение")}
-                className="text-[var(--color-primary)] disabled:opacity-40"
+                className="flex items-center justify-center text-[var(--color-primary)] disabled:opacity-40"
                 disabled={!draft.trim() || sending}
               >
                 <Send size={20} />

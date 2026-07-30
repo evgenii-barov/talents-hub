@@ -10,6 +10,7 @@ from rest_framework import permissions
 from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from ..emails import send_password_reset_email, send_verification_email
@@ -33,6 +34,8 @@ def session_payload(request: Request) -> dict[str, object]:
 
 
 class SessionView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
     def get(self, request: Request) -> Response:
         return Response(session_payload(request))
 
@@ -44,6 +47,8 @@ class SocialLoginProvidersView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request: Request) -> Response:
+        if not settings.SOCIAL_AUTH_ENABLED:
+            return Response({"providers": []})
         configured = settings.SOCIALACCOUNT_PROVIDERS
         providers = [
             {
@@ -57,6 +62,10 @@ class SocialLoginProvidersView(APIView):
 
 
 class LoginView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    throttle_classes = (ScopedRateThrottle,)
+    throttle_scope = "auth"
+
     def post(self, request: Request) -> Response:
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -83,6 +92,10 @@ def get_user_from_token_payload(uid: str, token: str) -> User:
 
 
 class SignupView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    throttle_classes = (ScopedRateThrottle,)
+    throttle_scope = "account_email"
+
     def post(self, request: Request) -> Response:
         serializer = SignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -108,6 +121,10 @@ class SignupView(APIView):
 
 
 class EmailVerificationView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    throttle_classes = (ScopedRateThrottle,)
+    throttle_scope = "auth"
+
     def post(self, request: Request) -> Response:
         serializer = EmailTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -124,6 +141,10 @@ class EmailVerificationView(APIView):
 
 
 class EmailVerificationResendView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    throttle_classes = (ScopedRateThrottle,)
+    throttle_scope = "account_email"
+
     def post(self, request: Request) -> Response:
         serializer = EmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -136,6 +157,10 @@ class EmailVerificationResendView(APIView):
 
 
 class PasswordResetRequestView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    throttle_classes = (ScopedRateThrottle,)
+    throttle_scope = "account_email"
+
     def post(self, request: Request) -> Response:
         serializer = EmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -148,6 +173,10 @@ class PasswordResetRequestView(APIView):
 
 
 class PasswordResetConfirmView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    throttle_classes = (ScopedRateThrottle,)
+    throttle_scope = "auth"
+
     def post(self, request: Request) -> Response:
         serializer = PasswordResetConfirmSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

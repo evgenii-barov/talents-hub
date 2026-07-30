@@ -19,6 +19,7 @@ export const commonMessages: Readonly<Record<string, string>> = {
   "Category": "类别",
   "City": "城市",
   "Clear filters": "清除筛选条件",
+  "Close menu": "关闭菜单",
   "Close notification": "关闭通知",
   "Country": "国家/地区",
   "Current stage": "当前阶段",
