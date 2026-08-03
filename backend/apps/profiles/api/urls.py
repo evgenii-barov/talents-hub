@@ -11,6 +11,8 @@ from .views import (
     MyProfileLanguageView,
     MyProfileLinksView,
     MyProfileLinkView,
+    MyProfileProjectPreferencesView,
+    MyProfileProjectPreferenceView,
     MyProfileSkillsView,
     MyProfileSkillView,
     MyProfileVisibilityView,
@@ -60,6 +62,16 @@ urlpatterns = [
         "me/profile/links/<uuid:item_id>/",
         MyProfileLinkView.as_view(),
         name="my-profile-link",
+    ),
+    path(
+        "me/profile/project-preferences/",
+        MyProfileProjectPreferencesView.as_view(),
+        name="my-profile-project-preferences",
+    ),
+    path(
+        "me/profile/project-preferences/<uuid:item_id>/",
+        MyProfileProjectPreferenceView.as_view(),
+        name="my-profile-project-preference",
     ),
     path("", include(router.urls)),
 ]

@@ -18,7 +18,7 @@ export async function generateMetadata({
   const path = `/projects/${encodeURIComponent(slug)}`;
   const fallbackTitle = humanizeSlug(slug) || "Проект";
   const fallbackDescription =
-    "Международный проект и открытые роли для сотрудничества участников стран ШОС.";
+    "Международный проект и открытые роли для участников молодёжного профессионального сообщества.";
 
   try {
     const project = await getProject(slug);

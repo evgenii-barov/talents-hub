@@ -25,6 +25,7 @@ from apps.profiles.models import (
     ProfileExperience,
     ProfileLanguage,
     ProfileLink,
+    ProfileProjectPreference,
     ProfileSkill,
 )
 from apps.users.models import UserRole
@@ -39,6 +40,8 @@ from .serializers import (
     ProfileLanguageWriteSerializer,
     ProfileLinkSerializer,
     ProfileLinkWriteSerializer,
+    ProfileProjectPreferenceSerializer,
+    ProfileProjectPreferenceWriteSerializer,
     ProfilePublicSerializer,
     ProfileSkillSerializer,
     ProfileSkillWriteSerializer,
@@ -443,6 +446,50 @@ class MyProfileLinkView(MyProfileNestedBaseView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(ProfileLinkSerializer(link).data)
+
+    def delete(self, request: Request, item_id: str) -> Response:
+        self.soft_delete(self.get_object(request, item_id))
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class MyProfileProjectPreferencesView(MyProfileNestedBaseView):
+    def get(self, request: Request) -> Response:
+        preferences = (
+            self.get_profile(request)
+            .project_preferences.filter(deleted_at__isnull=True)
+            .select_related("category", "focus_area", "work_format")
+        )
+        return Response(ProfileProjectPreferenceSerializer(preferences, many=True).data)
+
+    def post(self, request: Request) -> Response:
+        serializer = ProfileProjectPreferenceWriteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        preference = serializer.save(profile=self.get_profile(request))
+        return Response(
+            ProfileProjectPreferenceSerializer(preference).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class MyProfileProjectPreferenceView(MyProfileNestedBaseView):
+    def get_object(self, request: Request, item_id: str) -> ProfileProjectPreference:
+        return get_object_or_404(
+            ProfileProjectPreference.objects.select_related(
+                "category", "focus_area", "work_format"
+            ),
+            pk=item_id,
+            profile=self.get_profile(request),
+            deleted_at__isnull=True,
+        )
+
+    def patch(self, request: Request, item_id: str) -> Response:
+        preference = self.get_object(request, item_id)
+        serializer = ProfileProjectPreferenceWriteSerializer(
+            preference, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(ProfileProjectPreferenceSerializer(preference).data)
 
     def delete(self, request: Request, item_id: str) -> Response:
         self.soft_delete(self.get_object(request, item_id))

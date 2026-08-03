@@ -64,6 +64,15 @@ export interface ProfileLink {
   label: string;
 }
 
+export interface ProfileProjectPreference {
+  id: string;
+  category: TaxonomyReference | null;
+  focus_area: TaxonomyReference | null;
+  work_format: TaxonomyReference | null;
+  note: string;
+  sort_order: number;
+}
+
 export interface MediaAsset {
   id: string;
   original_name: string;
@@ -106,7 +115,7 @@ export interface Profile {
   experiences: ProfileExperience[];
   education: ProfileEducation[];
   links: ProfileLink[];
-  project_preferences: unknown[];
+  project_preferences: ProfileProjectPreference[];
 }
 
 export interface OrganizationFocus {

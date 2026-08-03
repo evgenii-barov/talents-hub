@@ -323,6 +323,27 @@ class ProfileLinkWriteSerializer(serializers.ModelSerializer):
         fields = ("kind", "url", "label", "sort_order")
 
 
+class ProfileProjectPreferenceWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProfileProjectPreference
+        fields = ("category", "focus_area", "work_format", "note", "sort_order")
+
+    def validate_category(self, category: Category) -> Category:
+        if not category.is_active:
+            raise serializers.ValidationError("Choose an active project category.")
+        return category
+
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
+        category = attrs.get("category", getattr(self.instance, "category", None))
+        focus_area = attrs.get("focus_area", getattr(self.instance, "focus_area", None))
+        work_format = attrs.get("work_format", getattr(self.instance, "work_format", None))
+        if category is None and focus_area is None and work_format is None:
+            raise serializers.ValidationError(
+                "Choose at least one category, focus area, or work format."
+            )
+        return attrs
+
+
 class MyProfileSerializer(ProfilePublicSerializer):
     """Private owner view: adds the visibility setting hidden from the public catalogue."""
 

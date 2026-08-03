@@ -19,15 +19,18 @@ class Command(BaseCommand):
 
     def handle(self, *args: Any, **options: Any) -> None:
         categories = [
-            ("Технологии / Technology", "technology"),
-            ("Образование / Education", "education"),
-            ("Социальное влияние / Social impact", "social-impact"),
-            ("Креативные индустрии / Creative industries", "creative-industries"),
-            ("Предпринимательство / Entrepreneurship", "entrepreneurship"),
-            ("Наука и исследования / Research", "research"),
-            ("Экология / Sustainability", "sustainability"),
+            ("Научные и образовательные проекты / Science & education", "science-education"),
+            (
+                "Бизнес и предпринимательство / Business & entrepreneurship",
+                "business-entrepreneurship",
+            ),
+            (
+                "Сопровождение и профессиональные услуги / Support & professional services",
+                "support-services",
+            ),
         ]
         category_by_slug = self._seed(Category, categories)
+        Category.objects.exclude(slug__in=category_by_slug).update(is_active=False)
         self._seed(
             FocusArea,
             [
@@ -154,26 +157,38 @@ class Command(BaseCommand):
     @staticmethod
     def _seed_skills(categories: dict[str, Category]) -> None:
         rows = [
-            ("Python", "python", "technology"),
-            ("JavaScript / TypeScript", "javascript-typescript", "technology"),
-            ("UX/UI-дизайн / UX/UI design", "ux-ui-design", "creative-industries"),
-            ("Аналитика данных / Data analytics", "data-analytics", "technology"),
-            ("Искусственный интеллект / AI", "artificial-intelligence", "technology"),
-            ("Управление продуктом / Product management", "product-management", "technology"),
-            ("Управление проектами / Project management", "project-management", "entrepreneurship"),
-            ("Исследования / Research", "research", "research"),
-            ("Маркетинг / Marketing", "marketing", "entrepreneurship"),
-            ("Контент и копирайтинг / Content", "content-copywriting", "creative-industries"),
-            ("Графический дизайн / Graphic design", "graphic-design", "creative-industries"),
-            ("Видеопродакшн / Video", "video-production", "creative-industries"),
-            ("Фандрайзинг / Fundraising", "fundraising", "social-impact"),
-            ("Партнёрства / Partnerships", "partnerships", "social-impact"),
-            ("События / Event management", "event-management", "social-impact"),
-            ("Преподавание / Teaching", "teaching", "education"),
-            ("Комьюнити-менеджмент / Community", "community-management", "social-impact"),
-            ("Финансы / Finance", "finance", "entrepreneurship"),
-            ("Право / Legal", "legal", "social-impact"),
-            ("Английский для работы / Business English", "business-english", "education"),
+            ("Python", "python", "business-entrepreneurship"),
+            ("JavaScript / TypeScript", "javascript-typescript", "business-entrepreneurship"),
+            ("UX/UI-дизайн / UX/UI design", "ux-ui-design", "support-services"),
+            ("Аналитика данных / Data analytics", "data-analytics", "business-entrepreneurship"),
+            (
+                "Искусственный интеллект / AI",
+                "artificial-intelligence",
+                "business-entrepreneurship",
+            ),
+            (
+                "Управление продуктом / Product management",
+                "product-management",
+                "business-entrepreneurship",
+            ),
+            (
+                "Управление проектами / Project management",
+                "project-management",
+                "business-entrepreneurship",
+            ),
+            ("Исследования / Research", "research", "science-education"),
+            ("Маркетинг / Marketing", "marketing", "business-entrepreneurship"),
+            ("Контент и копирайтинг / Content", "content-copywriting", "support-services"),
+            ("Графический дизайн / Graphic design", "graphic-design", "support-services"),
+            ("Видеопродакшн / Video", "video-production", "support-services"),
+            ("Фандрайзинг / Fundraising", "fundraising", "support-services"),
+            ("Партнёрства / Partnerships", "partnerships", "support-services"),
+            ("События / Event management", "event-management", "support-services"),
+            ("Преподавание / Teaching", "teaching", "science-education"),
+            ("Комьюнити-менеджмент / Community", "community-management", "support-services"),
+            ("Финансы / Finance", "finance", "business-entrepreneurship"),
+            ("Право / Legal", "legal", "support-services"),
+            ("Английский для работы / Business English", "business-english", "science-education"),
         ]
         for index, (name, slug, category_slug) in enumerate(rows, start=1):
             Skill.objects.update_or_create(

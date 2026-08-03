@@ -14,10 +14,13 @@ import type {
   City,
   Country,
   Profile,
+  TaxonomyReference,
 } from "@/lib/contracts";
 import { uploadProfileImage } from "@/lib/media";
 import {
+  createProjectPreference,
   createProfileLink,
+  deleteProjectPreference,
   deleteProfileLink,
 } from "@/lib/profile-editor";
 import { notifyProfileUpdated } from "@/lib/profile-events";
@@ -35,12 +38,15 @@ export default function CompleteProfilePage() {
   const { taxonomyName, tr } = useLocale();
   const [profile, setProfile] = useState<Profile>();
   const [countries, setCountries] = useState<Country[]>([]);
+  const [categories, setCategories] = useState<TaxonomyReference[]>([]);
   const [cities, setCities] = useState<City[]>([]);
   const [country, setCountry] = useState("");
   const [city, setCity] = useState("");
   const [message, setMessage] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [link, setLink] = useState({ kind: "portfolio", url: "", label: "" });
+  const [preference, setPreference] = useState({ category: "", note: "" });
+  const [portfolio, setPortfolio] = useState({ url: "", label: "" });
+  const [link, setLink] = useState({ kind: "linkedin", url: "", label: "" });
   const load = useCallback(async () => {
     try {
       const next = await apiFetch<Profile>("/v1/me/profile/");
@@ -72,6 +78,9 @@ export default function CompleteProfilePage() {
           ),
         ),
       );
+    void getTaxonomy<TaxonomyReference>("categories")
+      .then(setCategories)
+      .catch(() => setCategories([]));
     void load();
   }, [load, tr]);
   useEffect(() => {
@@ -130,7 +139,7 @@ export default function CompleteProfilePage() {
     event.preventDefault();
     try {
       await createProfileLink(link as Parameters<typeof createProfileLink>[0]);
-      setLink({ kind: "portfolio", url: "", label: "" });
+      setLink({ kind: "linkedin", url: "", label: "" });
       await load();
       setMessage(tr("Link added.", "Ссылка добавлена."));
     } catch (error) {
@@ -138,6 +147,37 @@ export default function CompleteProfilePage() {
         error instanceof ApiError
           ? error.message
           : tr("Could not add link.", "Не удалось добавить ссылку."),
+      );
+    }
+  }
+  async function addPortfolio(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    try {
+      await createProfileLink({ kind: "portfolio", ...portfolio });
+      setPortfolio({ url: "", label: "" });
+      await load();
+      setMessage(tr({ en: "Portfolio item added.", ru: "Работа добавлена в портфолио.", "zh-Hans": "作品已添加到作品集。" }));
+    } catch (error) {
+      setMessage(
+        error instanceof ApiError
+          ? error.message
+          : tr({ en: "Could not add the portfolio item.", ru: "Не удалось добавить работу в портфолио.", "zh-Hans": "无法将作品添加到作品集。" }),
+      );
+    }
+  }
+  async function addPreference(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!preference.category) return;
+    try {
+      await createProjectPreference(preference);
+      setPreference({ category: "", note: "" });
+      await load();
+      setMessage(tr({ en: "Project interests saved.", ru: "Интересы к проектам сохранены.", "zh-Hans": "项目兴趣已保存。" }));
+    } catch (error) {
+      setMessage(
+        error instanceof ApiError
+          ? error.message
+          : tr({ en: "Could not save project interests.", ru: "Не удалось сохранить интересы к проектам.", "zh-Hans": "无法保存项目兴趣。" }),
       );
     }
   }
@@ -270,11 +310,118 @@ export default function CompleteProfilePage() {
             </Button>
           </Card>
           <Card>
+            <h2 className="text-balance font-geist text-lg font-[650]">
+              {tr({
+                en: "What projects interest me",
+                ru: "Какие проекты мне интересны",
+                "zh-Hans": "我感兴趣的项目",
+              })}
+            </h2>
+            <p className="mt-2 text-pretty font-inter text-sm text-[var(--color-muted)]">
+              {tr({
+                en: "Choose a direction and describe the role or contribution you are looking for.",
+                ru: "Выберите направление и опишите роль или вклад, который вам интересен.",
+                "zh-Hans": "选择一个方向，并说明您希望承担的角色或贡献。",
+              })}
+            </p>
+            <div className="mt-4 space-y-2">
+              {profile?.project_preferences.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-start justify-between gap-4 rounded-lg bg-neutral-100 p-3"
+                >
+                  <div>
+                    <p className="font-inter text-sm font-semibold">
+                      {item.category
+                        ? taxonomyName(item.category)
+                        : tr({ en: "Project direction", ru: "Направление проекта", "zh-Hans": "项目方向" })}
+                    </p>
+                    {item.note ? (
+                      <p className="mt-1 text-pretty font-inter text-xs leading-5 text-[var(--color-muted)]">
+                        {item.note}
+                      </p>
+                    ) : null}
+                  </div>
+                  <button
+                    type="button"
+                    className="shrink-0 rounded-md p-2 text-[var(--color-muted)] hover:bg-white hover:text-red-600"
+                    onClick={() => void deleteProjectPreference(item.id).then(load)}
+                    aria-label={tr({ en: "Delete project interest", ru: "Удалить интерес к проекту", "zh-Hans": "删除项目兴趣" })}
+                  >
+                    <Trash2 aria-hidden="true" size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <form onSubmit={addPreference} className="mt-5 grid gap-3 md:grid-cols-[1fr_1.5fr_auto]">
+              <label className="font-inter text-[13px] font-semibold">
+                {tr({ en: "Project direction", ru: "Направление проекта", "zh-Hans": "项目方向" })}
+                <select
+                  required
+                  value={preference.category}
+                  onChange={(event) =>
+                    setPreference({ ...preference, category: event.target.value })
+                  }
+                  className={fieldClass}
+                >
+                  <option value="">{tr({ en: "Choose direction", ru: "Выберите направление", "zh-Hans": "选择方向" })}</option>
+                  {categories.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {taxonomyName(item)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="font-inter text-[13px] font-semibold">
+                {tr({ en: "Desired role or contribution", ru: "Желаемая роль или вклад", "zh-Hans": "期望的角色或贡献" })}
+                <input
+                  maxLength={500}
+                  value={preference.note}
+                  onChange={(event) =>
+                    setPreference({ ...preference, note: event.target.value })
+                  }
+                  placeholder={tr({ en: "For example: exhibition interpreter or delegation coordinator", ru: "Например: переводчик на выставке или координатор делегации", "zh-Hans": "例如：展会翻译或代表团协调员" })}
+                  className={fieldClass}
+                />
+              </label>
+              <Button type="submit" disabled={!profile} className="mt-2 self-end">
+                {tr("Add", "Добавить")}
+              </Button>
+            </form>
+          </Card>
+          <Card>
+            <h2 className="text-balance font-geist text-lg font-[650]">
+              {tr({ en: "Portfolio", ru: "Портфолио", "zh-Hans": "作品集" })}
+            </h2>
+            <p className="mt-2 text-pretty font-inter text-sm text-[var(--color-muted)]">
+              {tr({ en: "Add selected work, cases, publications, or presentations.", ru: "Добавьте избранные работы, кейсы, публикации или презентации.", "zh-Hans": "添加精选作品、案例、出版物或演示文稿。" })}
+            </p>
+            <div className="mt-4 space-y-2">
+              {profile?.links.filter((item) => item.kind === "portfolio").map((item) => (
+                <div key={item.id} className="flex items-center justify-between gap-3 rounded-lg bg-[var(--color-soft-blue)] p-3">
+                  <a className="truncate font-inter text-sm font-semibold text-[var(--color-primary)]" href={item.url} target="_blank" rel="noreferrer">
+                    {item.label || item.url}
+                  </a>
+                  <button type="button" className="rounded-md p-2 text-[var(--color-muted)] hover:bg-white hover:text-red-600" onClick={() => void deleteProfileLink(item.id).then(load)} aria-label={tr({ en: "Delete portfolio item", ru: "Удалить работу из портфолио", "zh-Hans": "从作品集中删除作品" })}>
+                    <Trash2 aria-hidden="true" size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <form onSubmit={addPortfolio} className="mt-5 grid gap-3 md:grid-cols-[1fr_1fr_auto]">
+              <input required type="url" aria-label={tr({ en: "Portfolio URL", ru: "Ссылка на работу", "zh-Hans": "作品链接" })} placeholder="https://" value={portfolio.url} onChange={(event) => setPortfolio({ ...portfolio, url: event.target.value })} className={fieldClass} />
+              <input aria-label={tr({ en: "Portfolio item label", ru: "Название работы", "zh-Hans": "作品名称" })} placeholder={tr({ en: "Work or case title", ru: "Название работы или кейса", "zh-Hans": "作品或案例名称" })} value={portfolio.label} onChange={(event) => setPortfolio({ ...portfolio, label: event.target.value })} className={fieldClass} />
+              <Button type="submit" variant="outline" disabled={!profile} className="mt-2">
+                {tr({ en: "Add to portfolio", ru: "Добавить в портфолио", "zh-Hans": "添加到作品集" })}
+              </Button>
+            </form>
+          </Card>
+          <Card>
             <h2 className="font-geist text-lg font-[650]">
               {tr("Links", "Ссылки")}
             </h2>
             <div className="mt-4 space-y-2">
-              {profile?.links.map((item) => (
+              {profile?.links.filter((item) => item.kind !== "portfolio").map((item) => (
                 <div
                   key={item.id}
                   className="flex items-center justify-between rounded-lg bg-neutral-100 p-3"
@@ -306,9 +453,6 @@ export default function CompleteProfilePage() {
                 onChange={(e) => setLink({ ...link, kind: e.target.value })}
                 className={fieldClass}
               >
-                <option value="portfolio">
-                  {tr("Portfolio", "Портфолио")}
-                </option>
                 <option value="linkedin">LinkedIn</option>
                 <option value="github">GitHub</option>
                 <option value="website">{tr("Website", "Сайт")}</option>

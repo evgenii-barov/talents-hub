@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/pudgewithmom/talents-hub/actions/workflows/ci.yml/badge.svg)](https://github.com/pudgewithmom/talents-hub/actions/workflows/ci.yml)
 
-**Talents Hub** — цифровая платформа для поиска специалистов, проектных команд и карьерных возможностей в молодёжном треке ШОС.
+**Talents Hub** — международное молодёжное профессиональное сообщество для поиска специалистов, проектных команд и возможностей сотрудничества.
 
 Production-код MVP развивается в `main`. Ранний статический прототип сохранён в ветке `prototype_for_sco` как источник пользовательских сценариев и функциональных требований.
 

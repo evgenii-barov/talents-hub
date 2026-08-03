@@ -7,6 +7,9 @@ export type TaxonomyLabelSource = {
 };
 
 const simplifiedChineseLabels: Readonly<Record<string, string>> = {
+  "science-education": "科研与教育项目",
+  "business-entrepreneurship": "商业与创业",
+  "support-services": "专业支持与服务",
   technology: "技术",
   education: "教育",
   "social-impact": "社会影响",

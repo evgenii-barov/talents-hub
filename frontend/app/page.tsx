@@ -39,7 +39,7 @@ const featuredProjects: {
 }[] = [
   {
     id: "legal-bridge",
-    category: "CROSS-BORDER LAW",
+    category: "SUPPORT & PROFESSIONAL SERVICES",
     accentClass: "text-[var(--color-green)]",
     icon: Scale,
     title: "Build a China–Iran legal working group.",
@@ -49,17 +49,17 @@ const featuredProjects: {
   },
   {
     id: "digital-trade-research",
-    category: "RESEARCH & EDUCATION",
+    category: "SCIENCE & EDUCATION",
     accentClass: "text-[var(--color-primary)]",
     icon: GraduationCap,
-    title: "Compare digital trade rules across SCO markets.",
+    title: "Compare digital trade rules across international markets.",
     description:
       "Alumni, researchers and policy experts are preparing a practical guide for cross-border teams.",
     roles: "+3",
   },
   {
     id: "founder-mentoring",
-    category: "ENTREPRENEURSHIP",
+    category: "BUSINESS & ENTREPRENEURSHIP",
     accentClass: "text-violet-700",
     icon: Handshake,
     title: "Launch a cross-border mentor circle for founders.",
@@ -113,7 +113,7 @@ const journey: {
     icon: Compass,
     number: "02",
     title: "Look across borders",
-    description: "Find specialists, alumni and requests from across the SCO region.",
+    description: "Find specialists, alumni and requests across the international youth community.",
   },
   {
     icon: MessageCircleHeart,
@@ -131,19 +131,19 @@ const journey: {
 
 const featuredProjectsRu = [
   {
-    category: "МЕЖДУНАРОДНОЕ ПРАВО",
+    category: "СОПРОВОЖДЕНИЕ И ПРОФЕССИОНАЛЬНЫЕ УСЛУГИ",
     title: "Создаём юридическую рабочую группу Китай — Иран.",
     description:
       "Юрист из Китая ищет коллегу из Ирана для сопровождения совместного выхода на новый рынок.",
   },
   {
-    category: "ИССЛЕДОВАНИЯ И ОБРАЗОВАНИЕ",
-    title: "Сравниваем правила цифровой торговли на рынках ШОС.",
+    category: "НАУЧНЫЕ И ОБРАЗОВАТЕЛЬНЫЕ ПРОЕКТЫ",
+    title: "Сравниваем правила цифровой торговли на международных рынках.",
     description:
       "Выпускники, исследователи и эксперты готовят практический гид для международных команд.",
   },
   {
-    category: "ПРЕДПРИНИМАТЕЛЬСТВО",
+    category: "БИЗНЕС И ПРЕДПРИНИМАТЕЛЬСТВО",
     title: "Запускаем международный круг наставников для основателей.",
     description:
       "Предприниматели из Казахстана, Китая и России ищут наставников с опытом работы в регионе.",
@@ -176,7 +176,7 @@ const journeyRu = [
   },
   {
     title: "Ищите без границ",
-    description: "Находите специалистов, выпускников и запросы со всего пространства ШОС.",
+    description: "Находите специалистов, выпускников и запросы в международном молодёжном сообществе.",
   },
   {
     title: "Начните прямой диалог",
@@ -191,17 +191,17 @@ const journeyRu = [
 
 const featuredProjectsZhHans = [
   {
-    category: "跨境法律",
+    category: "专业支持与服务",
     title: "组建中国—伊朗法律工作组。",
     description: "一位中国律师正在寻找伊朗法律顾问，共同支持市场进入项目。",
   },
   {
-    category: "研究与教育",
-    title: "比较上合组织市场的数字贸易规则。",
+    category: "科研与教育项目",
+    title: "比较国际市场的数字贸易规则。",
     description: "校友、研究人员和政策专家正在为跨境团队编写实用指南。",
   },
   {
-    category: "创业合作",
+    category: "商业与创业",
     title: "为创业者发起跨境导师圈。",
     description: "来自哈萨克斯坦、中国和俄罗斯的创业者正在寻找具有区域经验的导师。",
   },
@@ -232,7 +232,7 @@ const journeyZhHans = [
   },
   {
     title: "跨越国界寻找伙伴",
-    description: "发现上合组织地区的专业人士、校友和合作需求。",
+    description: "在国际青年社群中发现专业人士、校友和合作需求。",
   },
   {
     title: "开始直接对话",
@@ -319,9 +319,9 @@ function HeroOrganizationCard({ className = "" }: { className?: string }) {
           </p>
           <h2 className="mt-0.5 font-geist text-[13px] font-[650] leading-tight">
             {tr({
-              en: "SCO Legal Alumni Network",
-              ru: "Сеть выпускников-юристов ШОС",
-              "zh-Hans": "上合组织法律校友网络",
+              en: "International Legal Alumni Network",
+              ru: "Международная сеть выпускников-юристов",
+              "zh-Hans": "国际法律校友网络",
             })}
           </h2>
           <p className="mt-1 font-inter text-[10px] text-[var(--color-muted)]">
@@ -487,9 +487,9 @@ export default function Home() {
               >
                 <span className="size-1.5 rounded-full bg-[var(--color-green)]" />
                 {tr({
-                  en: "THE SCO COMMUNITY, CONNECTED",
-                  ru: "СООБЩЕСТВО ШОС БЕЗ ГРАНИЦ",
-                  "zh-Hans": "连接上合组织专业社群",
+                  en: "INTERNATIONAL YOUTH COMMUNITY",
+                  ru: "МЕЖДУНАРОДНОЕ МОЛОДЁЖНОЕ СООБЩЕСТВО",
+                  "zh-Hans": "国际青年专业社群",
                 })}
               </span>
               <h1
@@ -507,9 +507,9 @@ export default function Home() {
                 className="home-hero-intro mt-5 max-w-[485px] font-inter text-base leading-6 text-[var(--color-hero-muted)]"
               >
                 {tr({
-                  en: "A professional network where alumni and specialists from SCO countries find trusted peers, exchange local expertise and launch international collaborations.",
-                  ru: "Профессиональная сеть, где выпускники и специалисты из стран ШОС находят надёжных партнёров, обмениваются локальной экспертизой и запускают международные проекты.",
-                  "zh-Hans": "面向上合组织国家校友和专业人士的网络，在这里寻找可信伙伴、交流本地经验并发起国际合作。",
+                  en: "An international youth professional community where specialists find trusted peers, exchange expertise and launch collaborative projects.",
+                  ru: "Международное молодёжное профессиональное сообщество, где специалисты находят надёжных партнёров, обмениваются экспертизой и запускают совместные проекты.",
+                  "zh-Hans": "一个国际青年专业社群，帮助专业人士找到可信赖的伙伴、交流经验并发起合作项目。",
                 })}
               </p>
               <div
@@ -541,7 +541,9 @@ export default function Home() {
                 className="home-hero-intro mt-11 flex flex-wrap gap-6 font-inter text-xs text-[var(--color-hero-muted)]"
               >
                 <span>
-                  <b className="text-white">SCO</b>{" "}
+                  <b className="text-white">
+                    {tr({ en: "YOUTH", ru: "ВМЕСТЕ", "zh-Hans": "青年" })}
+                  </b>{" "}
                   {tr({
                     en: "shared professional space",
                     ru: "общее профессиональное пространство",
@@ -953,7 +955,7 @@ export default function Home() {
               {[
                 [
                   UsersRound,
-                  "SCO",
+                  tr({ en: "YOUTH", ru: "МОЛОДЁЖЬ", "zh-Hans": "青年" }),
                   tr({
                     en: "a shared space for alumni and experts",
                     ru: "общее пространство для выпускников и экспертов",

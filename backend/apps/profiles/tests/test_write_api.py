@@ -4,8 +4,8 @@ import pytest
 from django.test import Client
 from django.urls import reverse
 
-from apps.profiles.models import Profile, ProfileLanguage, ProfileSkill
-from apps.taxonomy.models import Language, Skill, WorkFormat
+from apps.profiles.models import Profile, ProfileLanguage, ProfileProjectPreference, ProfileSkill
+from apps.taxonomy.models import Category, Language, Skill, WorkFormat
 from apps.users.models import User
 
 
@@ -106,3 +106,39 @@ def test_owner_can_manage_languages_and_experience(owner_profile: tuple[Client, 
     assert ProfileLanguage.objects.get(profile=profile, language=english).is_primary is False
     assert experience.status_code == 201
     assert invalid_experience.status_code == 400
+
+
+@pytest.mark.django_db
+def test_owner_can_manage_project_preferences(owner_profile: tuple[Client, Profile]) -> None:
+    client, profile = owner_profile
+    category = Category.objects.get(slug="science-education")
+
+    create_response = client.post(
+        reverse("my-profile-project-preferences"),
+        {
+            "category": str(category.id),
+            "note": "Хочу участвовать в прикладных исследованиях.",
+        },
+        content_type="application/json",
+    )
+    invalid_response = client.post(
+        reverse("my-profile-project-preferences"),
+        {"note": "Нет выбранного направления"},
+        content_type="application/json",
+    )
+    preference_id = create_response.json()["id"]
+    patch_response = client.patch(
+        reverse("my-profile-project-preference", kwargs={"item_id": preference_id}),
+        {"note": "Интересуют исследования и образовательные программы."},
+        content_type="application/json",
+    )
+    delete_response = client.delete(
+        reverse("my-profile-project-preference", kwargs={"item_id": preference_id})
+    )
+
+    assert create_response.status_code == 201
+    assert create_response.json()["category"]["slug"] == "science-education"
+    assert invalid_response.status_code == 400
+    assert patch_response.status_code == 200
+    assert delete_response.status_code == 204
+    assert ProfileProjectPreference.objects.get(profile=profile).deleted_at is not None

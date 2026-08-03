@@ -130,6 +130,8 @@ export default function TalentProfilePage() {
   ]
     .filter(Boolean)
     .join(" · ");
+  const portfolioLinks = profile.links.filter((link) => link.kind === "portfolio");
+  const otherLinks = profile.links.filter((link) => link.kind !== "portfolio");
   return (
     <div className="min-h-full bg-[var(--color-background)]">
       <AuthenticatedHeader />
@@ -215,6 +217,48 @@ export default function TalentProfilePage() {
                       "No public skills yet.",
                       "Публичные навыки пока не указаны.",
                     )}
+                  </p>
+                ) : null}
+              </div>
+            </Card>
+            <Card>
+              <div className="border-l-4 border-[var(--color-primary)] pl-4">
+                <h2 className="text-balance font-geist text-lg font-[650]">
+                  {tr({ en: "Portfolio", ru: "Портфолио", "zh-Hans": "作品集" })}
+                </h2>
+                <p className="mt-1 text-pretty font-inter text-sm text-[var(--color-muted)]">
+                  {tr({ en: "Selected work, cases, and publications", ru: "Избранные работы, кейсы и публикации", "zh-Hans": "精选作品、案例与出版物" })}
+                </p>
+              </div>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                {portfolioLinks.map((item) => (
+                  <a key={item.id} href={item.url} target="_blank" rel="noreferrer" className="rounded-lg bg-[var(--color-soft-blue)] p-4 font-inter text-sm font-semibold text-[var(--color-primary)] hover:underline">
+                    {item.label || item.url} ↗
+                  </a>
+                ))}
+                {portfolioLinks.length === 0 ? (
+                  <p className="font-inter text-sm text-[var(--color-muted)]">
+                    {tr({ en: "Portfolio has not been added yet.", ru: "Портфолио пока не добавлено.", "zh-Hans": "尚未添加作品集。" })}
+                  </p>
+                ) : null}
+              </div>
+            </Card>
+            <Card>
+              <h2 className="text-balance font-geist text-lg font-[650]">
+                {tr({ en: "Projects I want to participate in", ru: "В каких проектах хочу участвовать", "zh-Hans": "我希望参与的项目" })}
+              </h2>
+              <div className="mt-5 space-y-3">
+                {profile.project_preferences.map((item) => (
+                  <div key={item.id} className="rounded-lg bg-neutral-100 p-4">
+                    <p className="font-inter text-sm font-bold">
+                      {item.category ? taxonomyName(item.category) : tr({ en: "Project direction", ru: "Направление проекта", "zh-Hans": "项目方向" })}
+                    </p>
+                    {item.note ? <p className="mt-2 text-pretty font-inter text-xs leading-5 text-[var(--color-muted)]">{item.note}</p> : null}
+                  </div>
+                ))}
+                {profile.project_preferences.length === 0 ? (
+                  <p className="font-inter text-sm text-[var(--color-muted)]">
+                    {tr({ en: "Project interests have not been specified yet.", ru: "Интересы к проектам пока не указаны.", "zh-Hans": "尚未填写项目兴趣。" })}
                   </p>
                 ) : null}
               </div>
@@ -340,13 +384,13 @@ export default function TalentProfilePage() {
                 </div>
               </div>
             </Card>
-            {profile.links.length ? (
+            {otherLinks.length ? (
               <Card>
                 <h2 className="font-geist text-[17px] font-[650]">
                   {tr("Links", "Ссылки")}
                 </h2>
                 <div className="mt-4 space-y-3 font-inter text-sm font-semibold text-[var(--color-primary)]">
-                  {profile.links.map((link) => (
+                  {otherLinks.map((link) => (
                     <a
                       key={link.id}
                       className="block"

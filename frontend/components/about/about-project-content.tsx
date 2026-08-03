@@ -100,9 +100,9 @@ export function AboutProjectContent() {
               className="about-hero-intro mt-5 max-w-[505px] font-inter text-base leading-7 text-[var(--color-hero-muted)]"
             >
               {tr({
-                en: "Talents Hub connects people, initiatives and organisations across SCO countries so that a useful contact can grow into an international project.",
-                ru: "Talents Hub соединяет людей, инициативы и организации стран ШОС, чтобы полезный контакт мог перерасти в международный проект.",
-                "zh-Hans": "Talents Hub 连接上合组织国家的人才、项目与机构，让一次有价值的联系发展为国际合作项目。",
+                en: "Talents Hub connects people, initiatives and organisations in an international youth professional community so that a useful contact can grow into a shared project.",
+                ru: "Talents Hub объединяет людей, инициативы и организации в международное молодёжное профессиональное сообщество, чтобы полезный контакт мог перерасти в совместный проект.",
+                "zh-Hans": "Talents Hub 在国际青年专业社群中连接人才、项目与机构，让一次有价值的联系发展为合作项目。",
               })}
             </p>
             <div
@@ -133,7 +133,7 @@ export function AboutProjectContent() {
               style={{ "--intro-delay": "440ms" } as CSSProperties}
               className="about-hero-intro mt-9 hidden flex-wrap gap-x-6 gap-y-2 font-inter text-xs text-[var(--color-hero-muted)] lg:flex"
             >
-              <span><b className="font-geist-mono text-white">SCO</b> · {tr({ en: "one region", ru: "единый регион", "zh-Hans": "同一区域" })}</span>
+              <span><b className="font-geist-mono text-white">YOUTH</b> · {tr({ en: "one community", ru: "единое сообщество", "zh-Hans": "同一社群" })}</span>
               <span><b className="font-geist-mono text-white">P2P</b> · {tr({ en: "direct dialogue", ru: "прямой диалог", "zh-Hans": "直接对话" })}</span>
               <span><b className="font-geist-mono text-white">OPEN</b> · {tr({ en: "shared projects", ru: "общие проекты", "zh-Hans": "合作项目" })}</span>
             </div>
@@ -183,9 +183,9 @@ export function AboutProjectContent() {
               })}
             >
               {tr({
-                en: "Young specialists present their expertise, initiative leaders find the right people, and organisations discover partners across SCO countries.",
-                ru: "Молодые специалисты представляют свою экспертизу, лидеры инициатив находят нужных людей, а организации — партнёров в странах ШОС.",
-                "zh-Hans": "青年专业人士展示能力，项目发起人寻找合适成员，机构也能在上合组织国家中发现合作伙伴。",
+                en: "Young specialists present their expertise, initiative leaders find the right people, and organisations discover partners in an international professional community.",
+                ru: "Молодые специалисты представляют свою экспертизу, лидеры инициатив находят нужных людей, а организации — партнёров в международном профессиональном сообществе.",
+                "zh-Hans": "青年专业人士展示能力，项目发起人寻找合适成员，机构也能在国际专业社群中发现合作伙伴。",
               })}
             </Statement>
             <Statement
@@ -304,7 +304,7 @@ function NetworkScene() {
 
       <SceneCard className="about-node-one left-[18px] top-[54px]" icon={UsersRound} eyebrow={tr({ en: "TALENT", ru: "СПЕЦИАЛИСТ", "zh-Hans": "人才" })} title={tr({ en: "Project strategist", ru: "Проектный стратег", "zh-Hans": "项目策略专家" })} meta={tr({ en: "Almaty · Open to collaborate", ru: "Алматы · Открыта к проектам", "zh-Hans": "阿拉木图 · 欢迎合作" })} />
       <SceneCard className="about-node-two right-[2px] top-[92px]" icon={FolderKanban} eyebrow={tr({ en: "PROJECT", ru: "ПРОЕКТ", "zh-Hans": "项目" })} title={tr({ en: "Cross-border mentor circle", ru: "Международный круг наставников", "zh-Hans": "跨境导师圈" })} meta={tr({ en: "3 specialists wanted", ru: "Нужны 3 специалиста", "zh-Hans": "招募 3 位专业人士" })} />
-      <SceneCard className="about-node-three bottom-[32px] left-[96px]" icon={Building2} eyebrow={tr({ en: "ORGANISATION", ru: "ОРГАНИЗАЦИЯ", "zh-Hans": "机构" })} title={tr({ en: "International programme", ru: "Международная программа", "zh-Hans": "国际合作项目" })} meta={tr({ en: "Partners across the SCO", ru: "Партнёры в странах ШОС", "zh-Hans": "上合组织国家合作伙伴" })} />
+      <SceneCard className="about-node-three bottom-[32px] left-[96px]" icon={Building2} eyebrow={tr({ en: "ORGANISATION", ru: "ОРГАНИЗАЦИЯ", "zh-Hans": "机构" })} title={tr({ en: "International programme", ru: "Международная программа", "zh-Hans": "国际合作项目" })} meta={tr({ en: "Partners in the youth community", ru: "Партнёры молодёжного сообщества", "zh-Hans": "青年社群合作伙伴" })} />
 
       <span className="about-live-badge absolute bottom-[44px] right-[68px] inline-flex items-center gap-2 rounded-full border border-blue-300/20 bg-[var(--color-hero-card)] px-3 py-2 font-inter text-[10px] font-bold text-blue-100 shadow-[0_8px_18px_rgba(0,0,0,0.2)]">
         <span className="about-status-dot size-1.5 rounded-full bg-emerald-400" />

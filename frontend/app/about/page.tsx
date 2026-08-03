@@ -4,7 +4,7 @@ import { buildPageMetadata } from "@/lib/seo";
 export const metadata = buildPageMetadata({
   title: "О проекте",
   description:
-    "Цель и миссия Talents Hub — международной профессиональной сети для талантов, проектов и организаций стран ШОС.",
+    "Цель и миссия Talents Hub — международного молодёжного профессионального сообщества для специалистов, проектов и организаций.",
   path: "/about",
 });
 
