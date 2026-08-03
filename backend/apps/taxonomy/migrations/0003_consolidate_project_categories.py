@@ -1,4 +1,6 @@
+from django.apps.registry import Apps
 from django.db import migrations
+from django.db.backends.base.schema import BaseDatabaseSchemaEditor
 
 
 CATEGORY_DEFINITIONS = (
@@ -30,7 +32,10 @@ OLD_TO_NEW = {
 }
 
 
-def consolidate_categories(apps, schema_editor):
+def consolidate_categories(
+    apps: Apps,
+    _schema_editor: BaseDatabaseSchemaEditor,
+) -> None:
     Category = apps.get_model("taxonomy", "Category")
     Skill = apps.get_model("taxonomy", "Skill")
     Project = apps.get_model("projects", "Project")
