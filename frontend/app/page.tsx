@@ -584,7 +584,7 @@ export default function Home() {
             >
               <div className="hero-visual-stage relative h-[410px] w-[630px]">
               <div className="hero-orbit absolute right-[84px] top-[12px] size-[360px] rounded-full border border-blue-400/25 bg-blue-600/10" />
-              <div className="absolute left-[40px] top-[58px] z-10 w-[320px] rounded-xl bg-white p-[18px] text-[var(--color-ink)] shadow-[0_12px_24px_rgba(0,0,0,0.22)]">
+              <div className="hero-demo-card absolute left-[40px] top-[58px] z-10 w-[320px] rounded-xl bg-white p-[18px] text-[var(--color-ink)] shadow-[0_12px_24px_rgba(0,0,0,0.22)]">
                 <div className="flex items-center justify-between">
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-soft-green)] px-2 py-1 font-inter text-[10px] font-bold tracking-[0.04em] text-emerald-700">
                     <span className="size-1.5 rounded-full bg-[var(--color-green)]" />
@@ -664,7 +664,7 @@ export default function Home() {
                   </span>
                 </div>
               </div>
-              <div className="absolute right-0 top-[157px] z-20 w-[230px] rounded-xl bg-[var(--color-hero-card)] p-4 shadow-[0_12px_22px_rgba(0,0,0,0.28)]">
+              <div className="hero-demo-card hero-demo-card-profile absolute right-0 top-[157px] z-20 w-[230px] rounded-xl bg-[var(--color-hero-card)] p-4 shadow-[0_12px_22px_rgba(0,0,0,0.28)]">
                 <div className="flex justify-between">
                   <Avatar
                     initials="SR"
@@ -718,7 +718,7 @@ export default function Home() {
                   })}
                 </p>
               </div>
-              <HeroOrganizationCard className="absolute -bottom-9 right-[132px] z-20 w-[286px]" />
+              <HeroOrganizationCard className="hero-demo-card hero-demo-card-organization absolute -bottom-9 right-[132px] z-20 w-[286px]" />
               <div className="hero-spark absolute left-[327px] top-[126px] z-30 flex size-[50px] items-center justify-center rounded-full bg-[var(--color-primary)] shadow-[0_6px_14px_rgba(37,99,235,0.53)]">
                 <Sparkles aria-hidden="true" size={20} />
               </div>
