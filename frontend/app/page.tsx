@@ -350,16 +350,20 @@ function ProjectCard({
     <article
       data-reveal="up"
       style={{ "--reveal-delay": `${index * 90}ms` } as CSSProperties}
-      className="scroll-reveal flex h-[318px] flex-col justify-between rounded-[10px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[0_4px_12px_rgba(15,23,42,0.04)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_14px_30px_rgba(15,23,42,0.1)] motion-reduce:transition-none"
+      className="scroll-reveal flex min-h-[318px] flex-col justify-between rounded-[10px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[0_4px_12px_rgba(15,23,42,0.04)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_14px_30px_rgba(15,23,42,0.1)] motion-reduce:transition-none"
     >
       <div className="space-y-[14px]">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col items-start gap-2">
           <span
-            className={`rounded-full bg-[var(--color-soft-blue)] px-2 py-1 font-inter text-[10px] font-bold tracking-[0.04em] ${project.accentClass}`}
+            className={`inline-flex max-w-full rounded-lg bg-[var(--color-soft-blue)] px-2.5 py-1 font-inter text-[10px] font-bold leading-4 sm:whitespace-nowrap sm:rounded-full ${project.accentClass}`}
           >
             {project.category}
           </span>
-          <span className="font-inter text-xs text-[var(--color-muted)]">
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap font-inter text-[11px] text-[var(--color-muted)]">
+            <span
+              aria-hidden="true"
+              className="size-1.5 rounded-full bg-[var(--color-green)]"
+            />
             {tr({
               en: "Open to collaborators",
               ru: "Открыто для участников",
@@ -372,10 +376,10 @@ function ProjectCard({
         >
           <Icon size={18} />
         </span>
-        <h3 className="font-geist text-[19px] font-[650] leading-[1.2] text-[var(--color-ink)]">
+        <h3 className="text-balance font-geist text-[19px] font-[650] leading-[1.2] text-[var(--color-ink)]">
           {project.title}
         </h3>
-        <p className="font-inter text-[13px] leading-[1.45] text-[var(--color-muted)]">
+        <p className="text-pretty font-inter text-[13px] leading-[1.45] text-[var(--color-muted)]">
           {project.description}
         </p>
       </div>
@@ -766,7 +770,7 @@ export default function Home() {
                 <ArrowRight aria-hidden="true" size={16} />
               </Link>
             </div>
-            <div className="mt-[34px] grid gap-4 md:grid-cols-3">
+            <div className="mt-[34px] grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {localizedProjects.map((project, index) => (
                 <ProjectCard key={project.id} project={project} index={index} />
               ))}
