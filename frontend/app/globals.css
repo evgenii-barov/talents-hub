@@ -207,7 +207,6 @@
 
 .home-hero-visual-intro {
   opacity: 0;
-  transform: translate3d(24px, 12px, 0) scale(0.97);
 }
 
 .about-hero-intro {
@@ -240,8 +239,7 @@
 }
 
 .home-intro-play .home-hero-visual-intro {
-  animation: home-hero-visual-enter 820ms cubic-bezier(0.22, 1, 0.36, 1)
-    120ms both;
+  animation: home-reduced-fade 480ms ease-out 120ms both;
 }
 
 @keyframes home-reduced-fade {
@@ -250,26 +248,6 @@
   }
   to {
     opacity: 1;
-  }
-}
-
-@keyframes hero-float-up {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-  50% {
-    transform: translate3d(0, -7px, 0);
-  }
-}
-
-@keyframes hero-float-down {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-  50% {
-    transform: translate3d(0, 6px, 0);
   }
 }
 
@@ -360,25 +338,33 @@
   will-change: transform, opacity;
 }
 
-.hero-project-card {
-  animation: hero-float-up 6s ease-in-out 1.1s infinite;
-}
-
-.hero-profile-card {
-  animation: hero-float-down 7s ease-in-out 1.25s infinite;
-}
-
-.hero-organization-card {
-  animation: hero-float-up 7.5s ease-in-out 1.35s infinite;
+.hero-visual-stage {
+  zoom: 0.72;
 }
 
 .hero-orbit {
   animation: hero-pulse 8s ease-in-out 1s infinite;
 }
 
-.hero-spark,
-.hero-live-badge {
+.hero-spark {
   animation: hero-pulse 3.6s ease-in-out 1.15s infinite;
+}
+
+.hero-status-dot {
+  animation: hero-pulse 2.8s ease-in-out 1.15s infinite;
+  will-change: transform, opacity;
+}
+
+@media (min-width: 1280px) {
+  .hero-visual-stage {
+    zoom: 0.9;
+  }
+}
+
+@media (min-width: 1380px) {
+  .hero-visual-stage {
+    zoom: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -414,12 +400,9 @@
     transition: none;
   }
 
-  .hero-project-card,
-  .hero-profile-card,
-  .hero-organization-card,
   .hero-orbit,
   .hero-spark,
-  .hero-live-badge,
+  .hero-status-dot,
   .about-node-one,
   .about-node-two,
   .about-node-three,

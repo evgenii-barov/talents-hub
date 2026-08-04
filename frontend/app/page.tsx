@@ -580,11 +580,11 @@ export default function Home() {
               </div>
             </div>
             <div
-              className="home-hero-visual-intro relative hidden h-[410px] lg:block"
+              className="home-hero-visual-intro relative hidden h-[410px] items-center justify-end lg:flex"
             >
-              <div className="absolute right-0 top-1/2 h-[410px] w-[630px] -translate-y-1/2 origin-right scale-[0.72] xl:scale-[0.9] min-[1380px]:scale-100">
+              <div className="hero-visual-stage relative h-[410px] w-[630px]">
               <div className="hero-orbit absolute right-[84px] top-[12px] size-[360px] rounded-full border border-blue-400/25 bg-blue-600/10" />
-              <div className="hero-project-card absolute left-[40px] top-[58px] z-10 w-[320px] rounded-xl bg-white p-[18px] text-[var(--color-ink)] shadow-[0_12px_24px_rgba(0,0,0,0.22)]">
+              <div className="absolute left-[40px] top-[58px] z-10 w-[320px] rounded-xl bg-white p-[18px] text-[var(--color-ink)] shadow-[0_12px_24px_rgba(0,0,0,0.22)]">
                 <div className="flex items-center justify-between">
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-soft-green)] px-2 py-1 font-inter text-[10px] font-bold tracking-[0.04em] text-emerald-700">
                     <span className="size-1.5 rounded-full bg-[var(--color-green)]" />
@@ -664,7 +664,7 @@ export default function Home() {
                   </span>
                 </div>
               </div>
-              <div className="hero-profile-card absolute right-0 top-[157px] z-20 w-[230px] rounded-xl bg-[var(--color-hero-card)] p-4 shadow-[0_12px_22px_rgba(0,0,0,0.28)]">
+              <div className="absolute right-0 top-[157px] z-20 w-[230px] rounded-xl bg-[var(--color-hero-card)] p-4 shadow-[0_12px_22px_rgba(0,0,0,0.28)]">
                 <div className="flex justify-between">
                   <Avatar
                     initials="SR"
@@ -718,12 +718,12 @@ export default function Home() {
                   })}
                 </p>
               </div>
-              <HeroOrganizationCard className="hero-organization-card absolute -bottom-9 right-[132px] z-20 w-[286px]" />
+              <HeroOrganizationCard className="absolute -bottom-9 right-[132px] z-20 w-[286px]" />
               <div className="hero-spark absolute left-[327px] top-[126px] z-30 flex size-[50px] items-center justify-center rounded-full bg-[var(--color-primary)] shadow-[0_6px_14px_rgba(37,99,235,0.53)]">
                 <Sparkles aria-hidden="true" size={20} />
               </div>
-              <span className="hero-live-badge absolute right-0 top-[18px] inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2 py-1 font-inter text-[10px] font-bold">
-                <span className="size-1.5 rounded-full bg-[var(--color-green)]" />
+              <span className="absolute right-0 top-[18px] inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2 py-1 font-inter text-[10px] font-bold">
+                <span className="hero-status-dot size-1.5 rounded-full bg-[var(--color-green)]" />
                 {tr({
                   en: "CROSS-BORDER MATCH",
                   ru: "МЕЖДУНАРОДНЫЙ КОНТАКТ",
