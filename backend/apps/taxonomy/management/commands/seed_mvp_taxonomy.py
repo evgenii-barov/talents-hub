@@ -116,6 +116,7 @@ class Command(BaseCommand):
             ("Таджикистан / Tajikistan", "tajikistan", "TJ"),
             ("Молдова / Moldova", "moldova", "MD"),
             ("Украина / Ukraine", "ukraine", "UA"),
+            ("Китай / China", "china", "CN"),
             ("Другие страны / Other", "other", "ZZ"),
         ]
         result: dict[str, Country] = {}
@@ -146,6 +147,12 @@ class Command(BaseCommand):
             "armenia": ["Ереван / Yerevan"],
             "georgia": ["Тбилиси / Tbilisi"],
             "uzbekistan": ["Ташкент / Tashkent"],
+            "china": [
+                "Пекин / Beijing",
+                "Шанхай / Shanghai",
+                "Гуанчжоу / Guangzhou",
+                "Шэньчжэнь / Shenzhen",
+            ],
         }
         for country_slug, names in rows.items():
             country = countries[country_slug]

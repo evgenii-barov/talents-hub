@@ -17,6 +17,7 @@ def test_taxonomy_endpoint_returns_active_values(client: Client) -> None:
     )
 
     categories = client.get(reverse("taxonomy-list", kwargs={"resource": "categories"}))
+    countries = client.get(reverse("taxonomy-list", kwargs={"resource": "countries"}))
     languages = client.get(reverse("taxonomy-list", kwargs={"resource": "languages"}))
 
     assert categories.status_code == 200
@@ -28,6 +29,7 @@ def test_taxonomy_endpoint_returns_active_values(client: Client) -> None:
         "business-entrepreneurship",
         "support-services",
     }.issubset(category_slugs)
+    assert any(item["code"] == "CN" for item in countries.json())
     assert languages.json()[0]["code"] == "en"
 
 

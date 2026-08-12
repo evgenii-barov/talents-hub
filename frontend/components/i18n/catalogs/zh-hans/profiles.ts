@@ -12,6 +12,10 @@ export const profileMessages: Readonly<Record<string, string>> = {
   "Basic information": "基本信息",
   "Cancel edit": "取消编辑",
   "Complete profile": "完善个人资料",
+  "Complete institution and start date in the education section.":
+    "请在教育经历部分填写学校和开始日期。",
+  "Complete organisation, role and start date in the experience section.":
+    "请在工作经历部分填写机构、职位和开始日期。",
   "Complete your professional headline": "完善职业标题",
   "Could not add education.": "无法添加教育经历。",
   "Could not add link.": "无法添加链接。",
@@ -30,11 +34,14 @@ export const profileMessages: Readonly<Record<string, string>> = {
   "Delete link": "删除链接",
   "Display name": "显示名称",
   "Education added.": "教育经历已添加。",
+  "Education updated.": "教育经历已更新。",
+  "Edit education": "编辑教育经历",
   "Edit profile": "编辑个人资料",
   "Editing": "编辑",
   "Enter a display name before saving.": "保存前请输入显示名称。",
   "Enter organisation, title and start date.":
     "请输入机构、职位和开始日期。",
+  "Enter institution and start date.": "请输入学校和开始日期。",
   "Experience added.": "工作经历已添加。",
   "Experience removed.": "工作经历已删除。",
   "Experience updated.": "工作经历已更新。",
@@ -77,6 +84,8 @@ export const profileMessages: Readonly<Record<string, string>> = {
   "Profile is published": "个人资料已发布",
   "Request publication": "申请发布",
   "Save basics": "保存基本信息",
+  "Save all changes": "保存所有更改",
+  "Save education": "保存教育经历",
   "Save experience": "保存工作经历",
   "Save your profile basics before adding these details.":
     "添加这些详细信息前，请先保存个人资料基本信息。",
@@ -93,6 +102,7 @@ export const profileMessages: Readonly<Record<string, string>> = {
   "Visible in talent feed": "在人才列表中显示",
   "Work experience": "工作经历",
   "Your profile": "您的个人资料",
+  "All profile changes saved.": "所有个人资料更改已保存。",
   "Your profile is hidden from the talent feed.": "您的个人资料已从人才列表中隐藏。",
   "Your profile is now visible in the talent feed.": "您的个人资料现已显示在人才列表中。",
   "Your profile was submitted for manual moderation.":

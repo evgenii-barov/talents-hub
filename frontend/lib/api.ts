@@ -42,6 +42,17 @@ function notifyAuthRequired(status: number, path: string): void {
   );
 }
 
+function apiErrorMessage(payload: unknown): string {
+  if (typeof payload !== "object" || payload === null) return "Request failed";
+  if ("detail" in payload) return String(payload.detail);
+
+  for (const value of Object.values(payload)) {
+    if (typeof value === "string") return value;
+    if (Array.isArray(value) && value.length > 0) return String(value[0]);
+  }
+  return "Request failed";
+}
+
 export async function getCsrfToken(): Promise<string | undefined> {
   let token = getCookie("csrftoken");
   if (token) return token;
@@ -76,10 +87,7 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
 
   if (!response.ok) {
     const payload: unknown = await response.json().catch(() => null);
-    const message =
-      typeof payload === "object" && payload !== null && "detail" in payload
-        ? String(payload.detail)
-        : "Request failed";
+    const message = apiErrorMessage(payload);
     notifyAuthRequired(response.status, path);
     throw new ApiError(message, response.status, payload);
   }
@@ -99,7 +107,7 @@ export async function apiFormFetch<T>(path: string, body: FormData, options: Omi
   const response = await fetch(`${requestApiUrl()}${path}`, { ...options, method, body, credentials: "include", headers });
   if (!response.ok) {
     const payload: unknown = await response.json().catch(() => null);
-    const message = typeof payload === "object" && payload !== null && "detail" in payload ? String(payload.detail) : "Request failed";
+    const message = apiErrorMessage(payload);
     notifyAuthRequired(response.status, path);
     throw new ApiError(message, response.status, payload);
   }

@@ -20,6 +20,7 @@ import { ApiError, apiFetch } from "@/lib/api";
 import type {
   Language,
   Profile,
+  ProfileEducation,
   ProfileExperience,
   TaxonomyReference,
 } from "@/lib/contracts";
@@ -32,6 +33,7 @@ import {
   deleteExperience,
   deleteLanguage,
   deleteSkill,
+  updateEducation,
   updateExperience,
   updateLanguage,
   updateSkill,
@@ -96,6 +98,31 @@ const emptyEducation: EducationForm = {
   ended_on: "",
   credential_url: "",
 };
+
+function hasExperienceDraft(value: ExperienceForm): boolean {
+  return Boolean(
+    value.organization_name.trim() ||
+      value.title.trim() ||
+      value.location_text.trim() ||
+      value.work_format ||
+      value.started_on ||
+      value.ended_on ||
+      value.is_current ||
+      value.description.trim(),
+  );
+}
+
+function hasEducationDraft(value: EducationForm): boolean {
+  return Boolean(
+    value.institution_name.trim() ||
+      value.degree.trim() ||
+      value.field_of_study.trim() ||
+      value.education_level ||
+      value.started_on ||
+      value.ended_on ||
+      value.credential_url.trim(),
+  );
+}
 const inputClass =
   "mt-2 h-[42px] w-full rounded-md border border-[var(--color-border)] bg-white px-3 font-inter text-sm font-normal outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-blue-100";
 
@@ -152,6 +179,7 @@ export default function ProfileSettingsPage() {
   const [education, setEducation] =
     useState<EducationForm>(emptyEducation);
   const [editingExperienceId, setEditingExperienceId] = useState<string>();
+  const [editingEducationId, setEditingEducationId] = useState<string>();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -254,11 +282,12 @@ export default function ProfileSettingsPage() {
   async function mutate(
     action: () => Promise<unknown>,
     successMessage: string,
-  ) {
+  ): Promise<boolean> {
     try {
       await action();
       await loadProfile();
       setMessage(successMessage);
+      return true;
     } catch (error) {
       setMessage(
         error instanceof ApiError
@@ -268,10 +297,11 @@ export default function ProfileSettingsPage() {
               "Не удалось сохранить изменение.",
             ),
       );
+      return false;
     }
   }
 
-  async function saveBasics(event: React.FormEvent<HTMLFormElement>) {
+  async function saveAllChanges(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!form.displayName.trim()) {
       setMessage(
@@ -280,6 +310,40 @@ export default function ProfileSettingsPage() {
           "Перед сохранением укажите отображаемое имя.",
         ),
       );
+      return;
+    }
+    const shouldSaveExperience = hasExperienceDraft(experience);
+    if (
+      shouldSaveExperience &&
+      (!experience.organization_name.trim() ||
+        !experience.title.trim() ||
+        !experience.started_on)
+    ) {
+      setMessage(
+        tr(
+          "Complete organisation, role and start date in the experience section.",
+          "Заполните организацию, роль и дату начала в разделе опыта.",
+        ),
+      );
+      document
+        .getElementById("experience")
+        ?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+    const shouldSaveEducation = hasEducationDraft(education);
+    if (
+      shouldSaveEducation &&
+      (!education.institution_name.trim() || !education.started_on)
+    ) {
+      setMessage(
+        tr(
+          "Complete institution and start date in the education section.",
+          "Заполните учебное заведение и дату начала в разделе образования.",
+        ),
+      );
+      document
+        .getElementById("education")
+        ?.scrollIntoView({ behavior: "smooth" });
       return;
     }
     setSaving(true);
@@ -301,16 +365,41 @@ export default function ProfileSettingsPage() {
       });
       setProfile(nextProfile);
       notifyProfileUpdated(nextProfile);
+      if (shouldSaveExperience) {
+        const input = {
+          ...experience,
+          work_format: experience.work_format || null,
+          ended_on: experience.is_current ? null : experience.ended_on || null,
+        };
+        if (editingExperienceId) {
+          await updateExperience(editingExperienceId, input);
+        } else {
+          await createExperience(input);
+        }
+        setExperience(emptyExperience);
+        setEditingExperienceId(undefined);
+      }
+      if (shouldSaveEducation) {
+        const input = {
+          ...education,
+          education_level: education.education_level || null,
+          ended_on: education.ended_on || null,
+          credential_url: education.credential_url || "",
+        };
+        if (editingEducationId) {
+          await updateEducation(editingEducationId, input);
+        } else {
+          await createEducation(input);
+        }
+        setEducation(emptyEducation);
+        setEditingEducationId(undefined);
+      }
+      await loadProfile();
       setMessage(
-        profile
-          ? tr(
-              "Profile basics saved.",
-              "Основная информация профиля сохранена.",
-            )
-          : tr(
-              "Profile created. Add skills, languages and experience below.",
-              "Профиль создан. Ниже можно добавить навыки, языки и опыт.",
-            ),
+        tr(
+          "All profile changes saved.",
+          "Все изменения профиля сохранены.",
+        ),
       );
     } catch (error) {
       setMessage(
@@ -319,7 +408,9 @@ export default function ProfileSettingsPage() {
               "Sign in before editing your profile.",
               "Войдите, чтобы редактировать профиль.",
             )
-          : tr("Could not save your profile.", "Не удалось сохранить профиль."),
+          : error instanceof ApiError
+            ? error.message
+            : tr("Could not save your profile.", "Не удалось сохранить профиль."),
       );
     } finally {
       setSaving(false);
@@ -336,7 +427,9 @@ export default function ProfileSettingsPage() {
             is_primary: profile?.skills.length === 0,
           }),
         tr("Skill added.", "Навык добавлен."),
-      ).then(() => setSelectedSkill(""));
+      ).then((saved) => {
+        if (saved) setSelectedSkill("");
+      });
   }
   function addLanguage() {
     if (requireProfile() && selectedLanguage)
@@ -348,7 +441,9 @@ export default function ProfileSettingsPage() {
             is_primary: profile?.languages.length === 0,
           }),
         tr("Language added.", "Язык добавлен."),
-      ).then(() => setSelectedLanguage(""));
+      ).then((saved) => {
+        if (saved) setSelectedLanguage("");
+      });
   }
   function editExperience(item: ProfileExperience) {
     setEditingExperienceId(item.id);
@@ -391,26 +486,60 @@ export default function ProfileSettingsPage() {
       editingExperienceId
         ? tr("Experience updated.", "Опыт обновлён.")
         : tr("Experience added.", "Опыт добавлен."),
-    ).then(() => {
-      setExperience(emptyExperience);
-      setEditingExperienceId(undefined);
+    ).then((saved) => {
+      if (saved) {
+        setExperience(emptyExperience);
+        setEditingExperienceId(undefined);
+      }
     });
   }
 
-  async function addEducation(event: React.FormEvent<HTMLFormElement>) {
+  function editEducation(item: ProfileEducation) {
+    setEditingEducationId(item.id);
+    setEducation({
+      institution_name: item.institution_name,
+      degree: item.degree,
+      field_of_study: item.field_of_study,
+      education_level: item.education_level?.id || "",
+      started_on: item.started_on,
+      ended_on: item.ended_on || "",
+      credential_url: item.credential_url,
+    });
+  }
+
+  async function saveEducation(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!requireProfile()) return;
+    if (!education.institution_name.trim() || !education.started_on) {
+      setMessage(
+        tr(
+          "Enter institution and start date.",
+          "Укажите учебное заведение и дату начала.",
+        ),
+      );
+      return;
+    }
 
     try {
-      await createEducation({
+      const input = {
         ...education,
         education_level: education.education_level || null,
         ended_on: education.ended_on || null,
         credential_url: education.credential_url || "",
-      });
+      };
+      if (editingEducationId) {
+        await updateEducation(editingEducationId, input);
+      } else {
+        await createEducation(input);
+      }
       setEducation(emptyEducation);
+      setEditingEducationId(undefined);
       await loadProfile();
-      setMessage(tr("Education added.", "Образование добавлено."));
+      setMessage(
+        editingEducationId
+          ? tr("Education updated.", "Образование обновлено.")
+          : tr("Education added.", "Образование добавлено."),
+      );
     } catch (error) {
       setMessage(
         error instanceof ApiError
@@ -508,7 +637,7 @@ export default function ProfileSettingsPage() {
               <Save size={16} />
               {saving
                 ? tr("Saving…", "Сохранение…")
-                : tr("Save basics", "Сохранить основное")}
+                : tr("Save all changes", "Сохранить все изменения")}
             </Button>
           </div>
         </div>
@@ -596,7 +725,7 @@ export default function ProfileSettingsPage() {
           </aside>
 
           <div className="min-w-0">
-            <form id="profile-basics-form" onSubmit={saveBasics}>
+            <form id="profile-basics-form" onSubmit={saveAllChanges}>
               <div className="space-y-[18px]">
             <Card id="basics">
               <h2 className="font-geist text-lg font-[650]">
@@ -1105,9 +1234,23 @@ export default function ProfileSettingsPage() {
             </Button>
           </Card>
           <Card id="education">
-            <h2 className="font-geist text-lg font-[650]">
-              {tr("Education", "Образование")}
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="font-geist text-lg font-[650]">
+                {tr("Education", "Образование")}
+              </h2>
+              {editingEducationId ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingEducationId(undefined);
+                    setEducation(emptyEducation);
+                  }}
+                  className="font-inter text-xs font-bold text-[var(--color-primary)]"
+                >
+                  {tr("Cancel edit", "Отменить редактирование")}
+                </button>
+              ) : null}
+            </div>
             <div className="mt-4 space-y-3">
               {profile?.education.map((item) => (
                 <div
@@ -1130,22 +1273,32 @@ export default function ProfileSettingsPage() {
                         : ""}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      void mutate(
-                        () => deleteEducation(item.id),
-                        tr("Education removed.", "Образование удалено."),
-                      )
-                    }
-                    aria-label={tr(
-                      "Delete education",
-                      "Удалить образование",
-                    )}
-                    className="shrink-0 text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)]"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div className="flex shrink-0 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => editEducation(item)}
+                      aria-label={tr("Edit education", "Редактировать образование")}
+                      className="text-[var(--color-primary)]"
+                    >
+                      <Pencil size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void mutate(
+                          () => deleteEducation(item.id),
+                          tr("Education removed.", "Образование удалено."),
+                        )
+                      }
+                      aria-label={tr(
+                        "Delete education",
+                        "Удалить образование",
+                      )}
+                      className="text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)]"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
               ))}
               {profile?.education.length === 0 ? (
@@ -1155,7 +1308,7 @@ export default function ProfileSettingsPage() {
               ) : null}
             </div>
             <form
-              onSubmit={addEducation}
+              onSubmit={saveEducation}
               className="mt-5 grid gap-4 md:grid-cols-2"
             >
               <Field label={tr("Institution", "Учебное заведение")}>
@@ -1267,8 +1420,10 @@ export default function ProfileSettingsPage() {
                 disabled={!profile}
                 className="md:col-span-2 md:justify-self-start"
               >
-                <Plus size={15} />
-                {tr("Add education", "Добавить образование")}
+                {editingEducationId ? <Save size={15} /> : <Plus size={15} />}
+                {editingEducationId
+                  ? tr("Save education", "Сохранить образование")
+                  : tr("Add education", "Добавить образование")}
               </Button>
             </form>
           </Card>
