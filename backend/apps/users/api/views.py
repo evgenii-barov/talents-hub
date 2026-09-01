@@ -14,7 +14,8 @@ from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from ..emails import send_password_reset_email, send_verification_email
-from ..models import User
+from ..legal import MINORS_VERSION, PERSONAL_DATA_VERSION, TERMS_VERSION, record_legal_acceptance
+from ..models import LegalAcceptance, User
 from .serializers import (
     EmailSerializer,
     EmailTokenSerializer,
@@ -112,6 +113,31 @@ class SignupView(APIView):
                 user=user,
                 email=user.email,
                 defaults={"primary": True, "verified": False},
+            )
+            acceptance_evidence = {
+                "request_path": request.path,
+                "subject_email": user.email,
+            }
+            record_legal_acceptance(
+                user,
+                LegalAcceptance.Document.TERMS,
+                TERMS_VERSION,
+                source="web_signup",
+                evidence=acceptance_evidence,
+            )
+            record_legal_acceptance(
+                user,
+                LegalAcceptance.Document.PERSONAL_DATA,
+                PERSONAL_DATA_VERSION,
+                source="web_signup",
+                evidence=acceptance_evidence,
+            )
+            record_legal_acceptance(
+                user,
+                LegalAcceptance.Document.AGE_CONFIRMATION,
+                MINORS_VERSION,
+                source="web_signup",
+                evidence=acceptance_evidence,
             )
             transaction.on_commit(lambda: send_verification_email(user))
         return Response(

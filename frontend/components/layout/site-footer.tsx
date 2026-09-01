@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { BrandMark } from "@/components/branding/brand-mark";
 import { useLocale } from "@/components/i18n/locale-provider";
+import { legalOperator } from "@/lib/legal";
 
 export function SiteFooter() {
   const { tr } = useLocale();
@@ -38,6 +39,7 @@ export function SiteFooter() {
                 "zh-Hans": "关于项目",
               })}
             </Link>
+            <Link href="/legal">{tr({ en: "Legal", ru: "Правовые документы", "zh-Hans": "法律文件" })}</Link>
             <Link href="/cookies">{tr("Cookies", "Cookies")}</Link>
           </nav>
         </div>
@@ -48,6 +50,11 @@ export function SiteFooter() {
               ru: "© 2026 Talents Hub · Соединяем экспертизу разных стран.",
               "zh-Hans": "© 2026 Talents Hub · 连接跨国专业能力。",
             })}
+          </p>
+          <p className="mt-2">
+            <Link href="/legal/owner" className="underline decoration-white/30 underline-offset-2 hover:decoration-white">
+              {tr({ en: "Website owner", ru: "Владелец сайта", "zh-Hans": "网站所有者" })}: {legalOperator.fullName}
+            </Link>
           </p>
         </div>
       </div>

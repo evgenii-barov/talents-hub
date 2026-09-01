@@ -64,6 +64,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "yearly",
       priority: 0.2,
     },
+    ...[
+      "/legal",
+      "/legal/owner",
+      "/legal/privacy",
+      "/legal/terms",
+      "/legal/personal-data-consent",
+      "/legal/public-profile-consent",
+      "/legal/community-guidelines",
+      "/legal/minors",
+    ].map((path) => ({
+      url: absoluteUrl(path),
+      lastModified: now,
+      changeFrequency: "yearly" as const,
+      priority: path === "/legal" ? 0.4 : 0.2,
+    })),
   ];
 
   const [projectsResult, profilesResult, organizationsResult] =

@@ -87,3 +87,30 @@ class ExternalIdentity(UUIDTimestampedModel):
             ),
         ]
         indexes = [models.Index(fields=["user", "provider"])]
+
+
+class LegalAcceptance(UUIDTimestampedModel):
+    """Versioned evidence of a user's legal acceptance or consent."""
+
+    class Document(models.TextChoices):
+        TERMS = "terms", "User terms"
+        PERSONAL_DATA = "personal_data", "Personal data consent"
+        AGE_CONFIRMATION = "age_confirmation", "Age confirmation"
+        PUBLIC_PROFILE = "public_profile", "Public profile distribution consent"
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="legal_acceptances")
+    document = models.CharField(choices=Document.choices, max_length=32)
+    version = models.CharField(max_length=32)
+    source = models.CharField(default="web", max_length=32)
+    evidence = models.JSONField(blank=True, default=dict)
+    withdrawn_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                condition=models.Q(withdrawn_at__isnull=True),
+                fields=["user", "document"],
+                name="users_unique_active_legal_acceptance",
+            ),
+        ]
+        indexes = [models.Index(fields=["user", "document", "version"])]

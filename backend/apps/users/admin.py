@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import ExternalIdentity, User, UserRole
+from .models import ExternalIdentity, LegalAcceptance, User, UserRole
 
 
 @admin.register(User)
@@ -44,3 +44,20 @@ class ExternalIdentityAdmin(admin.ModelAdmin):
     list_display = ("user", "provider", "provider_account_id", "linked_at")
     list_filter = ("provider",)
     search_fields = ("user__email", "provider_account_id", "email_at_provider")
+
+
+@admin.register(LegalAcceptance)
+class LegalAcceptanceAdmin(admin.ModelAdmin):
+    list_display = ("user", "document", "version", "source", "created_at", "withdrawn_at")
+    list_filter = ("document", "version", "source")
+    search_fields = ("user__email",)
+    readonly_fields = (
+        "user",
+        "document",
+        "version",
+        "source",
+        "evidence",
+        "created_at",
+        "updated_at",
+        "withdrawn_at",
+    )

@@ -1,4 +1,5 @@
 import { CookiePolicyContent } from "@/components/privacy/cookie-policy-content";
+import { SiteFooter } from "@/components/layout/site-footer";
 import { buildPageMetadata } from "@/lib/seo";
 
 export const metadata = buildPageMetadata({
@@ -8,5 +9,10 @@ export const metadata = buildPageMetadata({
 });
 
 export default function CookiePolicyPage() {
-  return <CookiePolicyContent />;
+  return (
+    <>
+      <CookiePolicyContent />
+      <SiteFooter />
+    </>
+  );
 }

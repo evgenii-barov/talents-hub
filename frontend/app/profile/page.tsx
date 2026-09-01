@@ -38,6 +38,7 @@ export default function ProfilePage() {
   const [requiresSignIn, setRequiresSignIn] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [visibilitySaving, setVisibilitySaving] = useState(false);
+  const [distributionConsent, setDistributionConsent] = useState(false);
 
   useEffect(() => {
     void apiFetch<Profile>("/v1/me/profile/")
@@ -148,13 +149,30 @@ export default function ProfilePage() {
   }
 
   async function updateVisibility(isVisible: boolean) {
+    if (isVisible && !distributionConsent) {
+      setMessage(
+        tr({
+          en: "Give separate consent to publish your profile before making it visible.",
+          ru: "Перед публикацией дайте отдельное согласие на распространение данных профиля.",
+          "zh-Hans": "公开个人资料前，请单独同意公开传播其中的数据。",
+        }),
+      );
+      return;
+    }
     setVisibilitySaving(true);
     try {
       const nextProfile = await apiFetch<Profile>(
         "/v1/me/profile/visibility/",
-        { method: "PATCH", body: { is_visible: isVisible } },
+        {
+          method: "PATCH",
+          body: {
+            is_visible: isVisible,
+            distribution_consent: isVisible ? distributionConsent : false,
+          },
+        },
       );
       setProfile(nextProfile);
+      setDistributionConsent(false);
       setMessage(
         isVisible
           ? tr(
@@ -245,8 +263,26 @@ export default function ProfilePage() {
                   </Link>
                 </Button>
                 {profile.status === "published" ? (
-                  <div className="flex min-h-10 items-center gap-3 rounded-md border border-[var(--color-border)] bg-white px-3">
-                    <div className="min-w-0">
+                  <div className="w-full max-w-[440px] rounded-md border border-[var(--color-border)] bg-white p-3">
+                    {profile.visibility !== "public" ? (
+                      <label className="mb-3 flex cursor-pointer items-start gap-2.5 border-b border-[var(--color-border)] pb-3 font-inter text-xs leading-5 text-[var(--color-muted)]">
+                        <input
+                          type="checkbox"
+                          checked={distributionConsent}
+                          onChange={(event) => setDistributionConsent(event.target.checked)}
+                          aria-describedby="profile-distribution-description"
+                          className="mt-0.5 size-4 shrink-0 accent-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
+                        />
+                        <span id="profile-distribution-description">
+                          {tr({ en: "I give separate consent to publish the data in my public profile under the", ru: "Я даю отдельное согласие на распространение заполненных данных публичного профиля на условиях", "zh-Hans": "我单独同意根据以下条款公开传播我的公开个人资料数据：" })} {" "}
+                          <Link className="font-semibold text-[var(--color-primary)] underline underline-offset-2" href="/legal/public-profile-consent" target="_blank" rel="noreferrer">
+                            {tr({ en: "distribution consent", ru: "согласия на распространение ПД", "zh-Hans": "个人数据传播同意书" })}
+                          </Link>.
+                        </span>
+                      </label>
+                    ) : null}
+                    <div className="flex min-h-10 items-center justify-between gap-3">
+                      <div className="min-w-0">
                       <p
                         id="profile-visibility-label"
                         className="font-inter text-xs font-semibold text-[var(--color-ink)]"
@@ -264,16 +300,15 @@ export default function ProfilePage() {
                           ? tr("Profile is published", "Профиль опубликован")
                           : tr("Only you can see it", "Его видите только вы")}
                       </p>
+                      </div>
+                      <Switch
+                        checked={profile.visibility === "public"}
+                        disabled={visibilitySaving}
+                        aria-labelledby="profile-visibility-label"
+                        aria-describedby="profile-visibility-description"
+                        onCheckedChange={(checked) => void updateVisibility(checked)}
+                      />
                     </div>
-                    <Switch
-                      checked={profile.visibility === "public"}
-                      disabled={visibilitySaving}
-                      aria-labelledby="profile-visibility-label"
-                      aria-describedby="profile-visibility-description"
-                      onCheckedChange={(checked) =>
-                        void updateVisibility(checked)
-                      }
-                    />
                   </div>
                 ) : (
                   <Button

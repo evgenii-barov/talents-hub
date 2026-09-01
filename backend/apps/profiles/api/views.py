@@ -28,7 +28,12 @@ from apps.profiles.models import (
     ProfileProjectPreference,
     ProfileSkill,
 )
-from apps.users.models import UserRole
+from apps.users.legal import (
+    PUBLIC_PROFILE_VERSION,
+    record_legal_acceptance,
+    withdraw_legal_acceptance,
+)
+from apps.users.models import LegalAcceptance, UserRole
 
 from .serializers import (
     MyProfileSerializer,
@@ -197,6 +202,32 @@ class MyProfileVisibilityView(APIView):
             "published_at": profile.published_at.isoformat() if profile.published_at else None,
         }
         is_visible = serializer.validated_data["is_visible"]
+        if is_visible:
+            record_legal_acceptance(
+                request.user,
+                LegalAcceptance.Document.PUBLIC_PROFILE,
+                PUBLIC_PROFILE_VERSION,
+                source="profile_visibility",
+                evidence={
+                    "profile_id": str(profile.id),
+                    "profile_slug": profile.slug,
+                    "subject_email": request.user.email,
+                    "display_name": profile.display_name,
+                    "data_categories": [
+                        "general_profile",
+                        "location_and_availability",
+                        "professional_background",
+                        "project_interests",
+                        "external_links",
+                    ],
+                    "request_path": request.path,
+                },
+            )
+        else:
+            withdraw_legal_acceptance(
+                request.user,
+                LegalAcceptance.Document.PUBLIC_PROFILE,
+            )
         profile.visibility = (
             Profile.Visibility.PUBLIC if is_visible else Profile.Visibility.PRIVATE
         )
@@ -214,6 +245,9 @@ class MyProfileVisibilityView(APIView):
             before=before,
             after={
                 "visibility": profile.visibility,
+                "distribution_consent_version": (
+                    PUBLIC_PROFILE_VERSION if is_visible else None
+                ),
                 "published_at": (
                     profile.published_at.isoformat() if profile.published_at else None
                 ),

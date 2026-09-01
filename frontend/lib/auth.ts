@@ -21,10 +21,25 @@ export function signIn(email: string, password: string) {
   return apiFetch<Session>("/v1/auth/login/", { method: "POST", body: { email, password } });
 }
 
-export function signUp(email: string, password: string) {
+export type SignupLegalConsents = {
+  terms_accepted: boolean;
+  personal_data_consent: boolean;
+  age_confirmed: boolean;
+};
+
+export function signUp(
+  email: string,
+  password: string,
+  legalConsents: SignupLegalConsents,
+) {
   return apiFetch<{ email: string; email_verification_sent: boolean }>("/v1/auth/signup/", {
     method: "POST",
-    body: { email, password, password_confirmation: password },
+    body: {
+      email,
+      password,
+      password_confirmation: password,
+      ...legalConsents,
+    },
   });
 }
 

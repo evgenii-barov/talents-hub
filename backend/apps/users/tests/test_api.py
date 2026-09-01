@@ -3,7 +3,58 @@ from django.core.cache import cache
 from django.test import Client
 from django.urls import reverse
 
-from apps.users.models import User
+from apps.users.legal import MINORS_VERSION, PERSONAL_DATA_VERSION, TERMS_VERSION
+from apps.users.models import LegalAcceptance, User
+
+
+@pytest.mark.django_db
+def test_signup_requires_separate_legal_confirmations(client: Client) -> None:
+    response = client.post(
+        reverse("auth-signup"),
+        {
+            "email": "new@example.com",
+            "password": "Strong-test-password-123!",
+            "password_confirmation": "Strong-test-password-123!",
+            "terms_accepted": False,
+            "personal_data_consent": False,
+            "age_confirmed": False,
+        },
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    assert set(response.json()) >= {
+        "terms_accepted",
+        "personal_data_consent",
+        "age_confirmed",
+    }
+    assert not User.objects.filter(email="new@example.com").exists()
+
+
+@pytest.mark.django_db
+def test_signup_records_document_versions(client: Client, mailoutbox: list[object]) -> None:
+    response = client.post(
+        reverse("auth-signup"),
+        {
+            "email": "accepted@example.com",
+            "password": "Strong-test-password-123!",
+            "password_confirmation": "Strong-test-password-123!",
+            "terms_accepted": True,
+            "personal_data_consent": True,
+            "age_confirmed": True,
+        },
+        content_type="application/json",
+    )
+
+    assert response.status_code == 201
+    user = User.objects.get(email="accepted@example.com")
+    assert set(
+        LegalAcceptance.objects.filter(user=user).values_list("document", "version")
+    ) == {
+        (LegalAcceptance.Document.TERMS, TERMS_VERSION),
+        (LegalAcceptance.Document.PERSONAL_DATA, PERSONAL_DATA_VERSION),
+        (LegalAcceptance.Document.AGE_CONFIRMATION, MINORS_VERSION),
+    }
 
 
 @pytest.mark.django_db

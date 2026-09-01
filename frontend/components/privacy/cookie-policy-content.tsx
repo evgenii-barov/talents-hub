@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { useLocale } from "@/components/i18n/locale-provider";
 import { AnalyticsPreferences } from "@/components/privacy/analytics-preferences";
+import { legalOperator } from "@/lib/legal";
 
 export function CookiePolicyContent() {
   const { tr } = useLocale();
@@ -38,6 +39,25 @@ export function CookiePolicyContent() {
         </header>
 
         <div className="mt-6 space-y-5">
+          <PolicySection
+            icon={ShieldCheck}
+            title={tr({ en: "Operator and scope", ru: "Оператор и область действия", "zh-Hans": "运营方和适用范围" })}
+          >
+            <p>
+              {tr({
+                en: `${legalOperator.fullName} is the website owner and personal data operator. Contact for privacy requests: ${legalOperator.privacyEmail}.`,
+                ru: `${legalOperator.fullName} является владельцем сайта и оператором персональных данных. Адрес для обращений по вопросам конфиденциальности: ${legalOperator.privacyEmail}.`,
+                "zh-Hans": `${legalOperator.fullName} 是网站所有者和个人数据运营方。隐私请求联系方式：${legalOperator.privacyEmail}。`,
+              })}
+            </p>
+            <p>
+              {tr({ en: "This policy applies to talents-hub.online and its subdomains.", ru: "Политика применяется к talents-hub.online и его поддоменам.", "zh-Hans": "本政策适用于 talents-hub.online 及其子域名。" })} {" "}
+              <Link className="font-semibold text-[var(--color-primary)] underline underline-offset-2" href="/legal/privacy">
+                {tr({ en: "Personal data policy", ru: "Политика обработки персональных данных", "zh-Hans": "个人数据处理政策" })}
+              </Link>
+            </p>
+          </PolicySection>
+
           <PolicySection
             icon={ShieldCheck}
             title={tr("Why we use cookies", "Зачем мы используем cookies")}
@@ -81,12 +101,12 @@ export function CookiePolicyContent() {
                   <CookieRow
                     name="sessionid"
                     purpose={tr("Keeps you signed in securely", "Поддерживает безопасный вход в аккаунт")}
-                    lifetime={tr("Until the session expires", "До завершения сессии")}
+                    lifetime={tr({ en: "Up to 14 days or until sign-out", ru: "До 14 дней либо до выхода из аккаунта", "zh-Hans": "最长14天或退出账户前" })}
                   />
                   <CookieRow
                     name="csrftoken"
                     purpose={tr("Protects forms and requests from forgery", "Защищает формы и запросы от подделки")}
-                    lifetime={tr("Set by the service", "Устанавливается сервисом")}
+                    lifetime={tr({ en: "Up to 1 year", ru: "До 1 года", "zh-Hans": "最长1年" })}
                   />
                   <CookieRow
                     name="talents-hub-cookie-consent"
@@ -106,7 +126,7 @@ export function CookiePolicyContent() {
 
           <PolicySection
             icon={ShieldCheck}
-            title={tr({ en: "Anonymous product analytics", ru: "Анонимная продуктовая аналитика", "zh-Hans": "匿名产品分析" })}
+            title={tr({ en: "Minimised product analytics", ru: "Минимизированная продуктовая аналитика", "zh-Hans": "最小化产品分析" })}
           >
             <p>
               {tr({
@@ -124,9 +144,9 @@ export function CookiePolicyContent() {
             </p>
             <p>
               {tr({
-                en: "Umami processes the IP address and browser user agent to derive a rotating anonymous session identifier; Talents Hub configures that salt to rotate monthly.",
-                ru: "Umami обрабатывает IP-адрес и сведения о браузере, чтобы получить сменяемый анонимный идентификатор сессии; в Talents Hub соль для него меняется ежемесячно.",
-                "zh-Hans": "Umami 会处理 IP 地址和浏览器 User-Agent，以生成定期轮换的匿名会话标识符；Talents Hub 将其盐值设置为每月轮换。",
+                en: "Umami briefly processes the IP address and browser user agent to derive a rotating pseudonymous session identifier; Talents Hub configures that salt to rotate monthly. Analytics records are retained for up to 12 months.",
+                ru: "Umami кратковременно обрабатывает IP-адрес и сведения о браузере, чтобы получить сменяемый псевдонимный идентификатор сессии; в Talents Hub соль для него меняется ежемесячно. Записи аналитики хранятся до 12 месяцев.",
+                "zh-Hans": "Umami 会短暂处理 IP 地址和浏览器 User-Agent，以生成定期轮换的假名会话标识符；Talents Hub 将其盐值设置为每月轮换。分析记录最多保存 12 个月。",
               })}
             </p>
             <AnalyticsPreferences />

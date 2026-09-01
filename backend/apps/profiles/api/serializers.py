@@ -382,3 +382,15 @@ class MyProfileSerializer(ProfilePublicSerializer):
 
 class ProfileVisibilitySerializer(serializers.Serializer):
     is_visible = serializers.BooleanField()
+    distribution_consent = serializers.BooleanField(default=False, write_only=True)
+
+    def validate(self, attrs: dict[str, bool]) -> dict[str, bool]:
+        if attrs["is_visible"] and not attrs["distribution_consent"]:
+            raise serializers.ValidationError(
+                {
+                    "distribution_consent": (
+                        "Separate consent to distribute public profile data is required."
+                    )
+                }
+            )
+        return attrs

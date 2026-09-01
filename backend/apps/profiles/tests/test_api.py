@@ -7,7 +7,8 @@ from apps.audit.models import AuditEvent
 from apps.common.models import PublicationStatus
 from apps.profiles.models import Profile, ProfileSkill
 from apps.taxonomy.models import Country, Skill
-from apps.users.models import User, UserRole
+from apps.users.legal import PUBLIC_PROFILE_VERSION
+from apps.users.models import LegalAcceptance, User, UserRole
 
 
 @pytest.mark.django_db
@@ -110,9 +111,14 @@ def test_only_approved_profile_owner_can_control_catalogue_visibility(
     )
     profile.status = PublicationStatus.PUBLISHED
     profile.save(update_fields=["status", "updated_at"])
+    without_consent = client.patch(
+        reverse("my-profile-visibility"),
+        {"is_visible": True, "distribution_consent": False},
+        content_type="application/json",
+    )
     publish = client.patch(
         reverse("my-profile-visibility"),
-        {"is_visible": True},
+        {"is_visible": True, "distribution_consent": True},
         content_type="application/json",
     )
     visible_catalogue = catalogue_client.get(reverse("profile-list"))
@@ -124,6 +130,7 @@ def test_only_approved_profile_owner_can_control_catalogue_visibility(
     hidden_catalogue = catalogue_client.get(reverse("profile-list"))
 
     assert before_approval.status_code == 400
+    assert without_consent.status_code == 400
     assert publish.status_code == 200
     assert publish.json()["visibility"] == Profile.Visibility.PUBLIC
     assert publish.json()["published_at"] is not None
@@ -133,6 +140,13 @@ def test_only_approved_profile_owner_can_control_catalogue_visibility(
     assert hide.status_code == 200
     assert hide.json()["visibility"] == Profile.Visibility.PRIVATE
     assert hidden_catalogue.json()["results"] == []
+    acceptance = LegalAcceptance.objects.get(
+        user=user,
+        document=LegalAcceptance.Document.PUBLIC_PROFILE,
+        version=PUBLIC_PROFILE_VERSION,
+    )
+    assert acceptance.withdrawn_at is not None
+    assert acceptance.evidence["profile_id"] == str(profile.id)
     assert AuditEvent.objects.filter(
         actor=user,
         action="profile.visibility_changed",

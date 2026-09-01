@@ -43,7 +43,7 @@ export function CookieConsent() {
           <p className="mt-1.5 font-inter text-[13px] leading-5 text-[var(--color-muted)] sm:text-sm sm:leading-6">
             {tr({
               en: "Required cookies keep sign-in secure. With your permission, privacy-friendly Umami analytics also helps us improve Talents Hub without advertising cookies or collecting form contents.",
-              ru: "Необходимые cookies обеспечивают безопасный вход. С вашего разрешения анонимная аналитика Umami также помогает улучшать Talents Hub без рекламных cookies и сбора содержимого форм.",
+              ru: "Необходимые cookies обеспечивают безопасный вход. С вашего разрешения минимизированная аналитика Umami также помогает улучшать Talents Hub без рекламных cookies и сбора содержимого форм.",
               "zh-Hans": "必要 Cookie 用于保障安全登录。经您允许，注重隐私的 Umami 匿名分析还会帮助我们改进 Talents Hub，不使用广告 Cookie，也不收集表单内容。",
             })}{" "}
             <Link
@@ -66,7 +66,7 @@ export function CookieConsent() {
             type="button"
             onClick={() => choosePreference("analytics")}
           >
-            {tr({ en: "Allow analytics", ru: "Разрешить аналитику", "zh-Hans": "允许匿名分析" })}
+            {tr({ en: "Allow analytics", ru: "Разрешить аналитику", "zh-Hans": "允许分析" })}
           </Button>
         </div>
       </div>
@@ -75,7 +75,7 @@ export function CookieConsent() {
           type="button"
           onClick={() => choosePreference("analytics")}
         >
-          {tr({ en: "Allow anonymous analytics", ru: "Разрешить анонимную аналитику", "zh-Hans": "允许匿名分析" })}
+          {tr({ en: "Allow analytics", ru: "Разрешить аналитику", "zh-Hans": "允许分析" })}
         </Button>
         <Button
           type="button"
