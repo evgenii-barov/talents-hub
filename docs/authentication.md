@@ -65,34 +65,28 @@ The successful callback creates the normal Django session and redirects to
 6. Verify a new account, an existing social account, cancellation at the provider, and an
    existing email/password account before release.
 
-## REG.RU SMTP
+## Yandex Cloud Postbox API
 
-The development configuration writes emails to the backend console. Production uses the REG.RU
-mailbox SMTP endpoint:
+The development configuration writes emails to the backend console. Production sends transactional
+email through the Postbox SESv2-compatible HTTPS API, matching the Arc Store integration:
 
 ```dotenv
-DJANGO_EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+DJANGO_EMAIL_BACKEND=config.email_backends.YandexPostboxEmailBackend
 DEFAULT_FROM_EMAIL=Talents Hub <noreply@talents-hub.online>
-EMAIL_HOST=mail.hosting.reg.ru
-EMAIL_PORT=465
-EMAIL_HOST_USER=noreply@talents-hub.online
-SMTP_PASSWORD_FILE=/root/talents-hub-smtp-password
-EMAIL_HOST_PASSWORD_FILE=/run/secrets/smtp_password
-EMAIL_HOST_PASSWORD=
-EMAIL_USE_TLS=false
-EMAIL_USE_SSL=true
+YANDEX_POSTBOX_ACCESS_KEY_ID=<Postbox static access key ID>
+YANDEX_POSTBOX_SECRET_KEY=<Postbox static secret key>
+YANDEX_POSTBOX_ENDPOINT=https://postbox.cloud.yandex.net
+YANDEX_POSTBOX_REGION=ru-central1
+YANDEX_POSTBOX_CONFIGURATION_SET=
 EMAIL_TIMEOUT=15
 ```
 
-Keep the mailbox password in the root-owned `SMTP_PASSWORD_FILE`; never commit it or put it directly
-into a Compose environment variable. The production image runs as UID/GID `10001`, so grant only
-that group read access before starting the containers:
+Use a static access key for a service account with the `postbox.sender` role in the same Yandex Cloud
+folder as the verified address. Never commit the key. Create the Postbox address for the domain
+`talents-hub.online` (not for a sender-like subdomain such as `no-reply.talents-hub.online`) and publish both DKIM
+CNAME records supplied by Postbox. Add `include:spf.postbox.yandexcloud.net` to the domain's existing
+single SPF record before its `all` mechanism; do not create a second SPF record. Keep the existing
+DMARC record. After DKIM verifies, send registration and password-reset tests to external mailboxes.
 
-```bash
-chown root:10001 /root/talents-hub-smtp-password
-chmod 640 /root/talents-hub-smtp-password
-```
-
-Docker mounts the file read-only at `EMAIL_HOST_PASSWORD_FILE`. Publish the REG.RU-generated DKIM
-record and verify the domain's single SPF record and DMARC policy. After DNS verifies, send
-registration and password-reset tests to external mailboxes.
+Postbox sends mail but does not host an inbox. REG.RU MX records and the REG.RU mailbox may remain in
+place if incoming mail is still required; they are independent from Django's outbound Postbox API.

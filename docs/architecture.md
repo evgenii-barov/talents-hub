@@ -12,7 +12,7 @@ MVP реализуется как **модульный монолит** из д�
        ├─ PostgreSQL: источник истины и поиск
        ├─ Redis + Celery: фоновые задачи и outbox
        ├─ S3 storage: документы и изображения
-       └─ REG.RU mailbox: email через SMTP
+       └─ Yandex Cloud Postbox: email через SMTP
 ```
 
 ## Frontend

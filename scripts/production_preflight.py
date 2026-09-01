@@ -195,8 +195,26 @@ def validate(values: dict[str, str], *, strict_external: bool) -> tuple[list[str
 
     email_backend = values.get("DJANGO_EMAIL_BACKEND", "")
     if email_backend.endswith("console.EmailBackend"):
-        message = "SMTP is not configured; registration emails will only appear in backend logs"
+        message = "Email delivery is not configured; messages will only appear in backend logs"
         (errors if strict_external else warnings).append(message)
+    elif email_backend == "config.email_backends.YandexPostboxEmailBackend":
+        for key in (
+            "DEFAULT_FROM_EMAIL",
+            "YANDEX_POSTBOX_ACCESS_KEY_ID",
+            "YANDEX_POSTBOX_SECRET_KEY",
+        ):
+            value = values.get(key, "")
+            if not value:
+                errors.append(f"{key} is required when Yandex Postbox is enabled")
+            elif "replace-me" in value.lower():
+                errors.append(f"{key} still contains a replace-me placeholder")
+
+        postbox_endpoint = values.get("YANDEX_POSTBOX_ENDPOINT", "")
+        parsed_endpoint = urlparse(postbox_endpoint)
+        if parsed_endpoint.scheme != "https" or not parsed_endpoint.netloc:
+            errors.append("YANDEX_POSTBOX_ENDPOINT must be an absolute HTTPS URL")
+        if values.get("YANDEX_POSTBOX_REGION") != "ru-central1":
+            errors.append("YANDEX_POSTBOX_REGION must be ru-central1")
     elif email_backend.endswith("smtp.EmailBackend"):
         for key in ("DEFAULT_FROM_EMAIL", "EMAIL_HOST", "EMAIL_HOST_USER"):
             value = values.get(key, "")
@@ -255,7 +273,7 @@ def main() -> int:
     parser.add_argument(
         "--strict-external",
         action="store_true",
-        help="Fail when SMTP is not configured (use immediately before public launch).",
+        help="Fail when email delivery is not configured (use before public launch).",
     )
     args = parser.parse_args()
 

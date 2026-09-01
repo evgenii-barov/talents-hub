@@ -9,19 +9,15 @@
 ```dotenv
 FRONTEND_URL=https://talents-hub.online
 DEFAULT_FROM_EMAIL=Talents Hub <noreply@talents-hub.online>
-DJANGO_EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
-EMAIL_HOST=mail.hosting.reg.ru
-EMAIL_PORT=465
-EMAIL_HOST_USER=noreply@talents-hub.online
-SMTP_PASSWORD_FILE=/root/talents-hub-smtp-password
-EMAIL_HOST_PASSWORD_FILE=/run/secrets/smtp_password
-EMAIL_HOST_PASSWORD=
-EMAIL_USE_TLS=false
-EMAIL_USE_SSL=true
+DJANGO_EMAIL_BACKEND=config.email_backends.YandexPostboxEmailBackend
+YANDEX_POSTBOX_ACCESS_KEY_ID=<Postbox static access key ID>
+YANDEX_POSTBOX_SECRET_KEY=<Postbox static secret key>
+YANDEX_POSTBOX_ENDPOINT=https://postbox.cloud.yandex.net
+YANDEX_POSTBOX_REGION=ru-central1
 EMAIL_TIMEOUT=15
 ```
 
-Пароль ящика хранится в отдельном root-owned файле, подключённом как Docker secret, и не коммитится в Git. Для чтения непривилегированным пользователем контейнера установите владельца `root:10001` и права `640`. Логика писем находится в `apps/users/emails.py`, а фирменные HTML/plain-text шаблоны — в `backend/templates/emails/`, поэтому менять API и frontend не требуется.
+Используется статический ключ сервисного аккаунта с ролью `postbox.sender`, созданного в том же каталоге Yandex Cloud, что и подтверждённый домен. Логика писем находится в `apps/users/emails.py`, фирменные HTML/plain-text шаблоны — в `backend/templates/emails/`, а транспорт Postbox — в `config/email_backends.py`, поэтому менять API и frontend не требуется.
 
 ## Новые пользовательские маршруты
 

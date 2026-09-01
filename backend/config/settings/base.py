@@ -181,6 +181,13 @@ else:
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
 EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=False)
 EMAIL_TIMEOUT = env.int("EMAIL_TIMEOUT", default=15)
+YANDEX_POSTBOX_ACCESS_KEY_ID = env("YANDEX_POSTBOX_ACCESS_KEY_ID", default="")
+YANDEX_POSTBOX_SECRET_KEY = env("YANDEX_POSTBOX_SECRET_KEY", default="")
+YANDEX_POSTBOX_ENDPOINT = env(
+    "YANDEX_POSTBOX_ENDPOINT", default="https://postbox.cloud.yandex.net"
+)
+YANDEX_POSTBOX_REGION = env("YANDEX_POSTBOX_REGION", default="ru-central1")
+YANDEX_POSTBOX_CONFIGURATION_SET = env("YANDEX_POSTBOX_CONFIGURATION_SET", default="")
 FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000").rstrip("/")
 LOGIN_REDIRECT_URL = f"{FRONTEND_URL}/profile"
 SOCIAL_AUTH_ENABLED = env.bool("SOCIAL_AUTH_ENABLED", default=True)
