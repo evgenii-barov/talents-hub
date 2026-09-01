@@ -17,6 +17,7 @@ import { ProfileBreadcrumbs } from "@/components/profile/profile-breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { API_URL, ApiError, apiFetch } from "@/lib/api";
+import { trackAnalytics } from "@/lib/analytics";
 import type { Profile } from "@/lib/contracts";
 
 const Card = ({ children }: { children: React.ReactNode }) => (
@@ -125,6 +126,7 @@ export default function ProfilePage() {
       setProfile((current) =>
         current ? { ...current, status: "pending_moderation" } : current,
       );
+      trackAnalytics("profile moderation requested");
       setMessage(
         tr(
           "Your profile was submitted for manual moderation.",

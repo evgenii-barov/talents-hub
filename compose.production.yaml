@@ -125,6 +125,8 @@ services:
       args:
         NEXT_PUBLIC_API_URL: ${PUBLIC_API_URL:-/api}
         NEXT_PUBLIC_SITE_URL: ${PUBLIC_SITE_URL}
+        NEXT_PUBLIC_UMAMI_SCRIPT_URL: ${UMAMI_SCRIPT_URL:-}
+        NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${UMAMI_WEBSITE_ID:-}
     expose:
       - "3000"
     environment:
@@ -231,6 +233,57 @@ services:
       retries: 20
       start_period: 60s
 
+  umami-db:
+    <<: *service-defaults
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${UMAMI_POSTGRES_DB}
+      POSTGRES_USER: ${UMAMI_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${UMAMI_POSTGRES_PASSWORD}
+    volumes:
+      - umami_postgres_data:/var/lib/postgresql/data
+    networks:
+      - analytics
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  umami:
+    <<: *service-defaults
+    image: ghcr.io/umami-software/umami:3.3.1
+    init: true
+    expose:
+      - "3000"
+    environment:
+      DATABASE_URL: ${UMAMI_DATABASE_URL}
+      APP_SECRET: ${UMAMI_APP_SECRET}
+      TWO_FACTOR_ENCRYPTION_KEY: ${UMAMI_TWO_FACTOR_ENCRYPTION_KEY}
+      DISABLE_TELEMETRY: "1"
+      PRIVATE_MODE: "1"
+      TRACKER_SCRIPT_NAME: th.js
+      COLLECT_API_ENDPOINT: /api/th
+      SALT_ROTATION: month
+      USE_UUIDV7: "1"
+      DEFAULT_LOCALE: en-US
+    networks:
+      - edge
+      - analytics
+    depends_on:
+      umami-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://127.0.0.1:3000/api/heartbeat"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
   caddy:
     <<: *service-defaults
     image: caddy:2-alpine
@@ -259,6 +312,8 @@ networks:
     internal: true
   monitoring:
     internal: true
+  analytics:
+    internal: true
 
 volumes:
   postgres_data:
@@ -269,3 +324,4 @@ volumes:
   glitchtip_postgres_data:
   glitchtip_valkey_data:
   glitchtip_uploads:
+  umami_postgres_data:

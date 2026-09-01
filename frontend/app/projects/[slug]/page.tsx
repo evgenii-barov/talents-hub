@@ -20,6 +20,7 @@ import { ProfileAvatar } from "@/components/profile/profile-avatar";
 import { Button } from "@/components/ui/button";
 import { useFlashMessages } from "@/components/ui/flash-messages";
 import { ApiError, apiFetch } from "@/lib/api";
+import { trackAnalytics } from "@/lib/analytics";
 import type { Project, ProjectRole } from "@/lib/contracts";
 import { getProject } from "@/lib/projects";
 
@@ -91,6 +92,12 @@ export default function ProjectDetailPage() {
         method: "POST",
         body: { cover_letter: "" },
       });
+      if (project) {
+        trackAnalytics("application submitted", {
+          project_id: project.id,
+          role_id: role.id,
+        });
+      }
       setAppliedRoles((current) => new Set(current).add(role.id));
       showFlash({
         tone: "success",

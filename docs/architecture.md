@@ -12,7 +12,8 @@ MVP реализуется как **модульный монолит** из д�
        ├─ PostgreSQL: источник истины и поиск
        ├─ Redis + Celery: фоновые задачи и outbox
        ├─ S3 storage: документы и изображения
-       └─ Yandex Cloud Postbox: email через SMTP
+       ├─ Yandex Cloud Postbox: транзакционные письма через HTTPS API
+       └─ Umami + отдельный PostgreSQL: consent-based продуктовая аналитика
 ```
 
 ## Frontend
@@ -53,4 +54,5 @@ MVP реализуется как **модульный монолит** из д�
 - локальная и staging-среды поднимаются Docker Compose;
 - production использует Docker, managed PostgreSQL, reverse proxy/CDN и CI/CD;
 - обязательны health/readiness endpoints, error tracking, метрики очередей и резервные копии с регулярной проверкой восстановления;
+- self-hosted Umami изолирован от основной БД и не участвует в health-check пользовательского приложения;
 - критические пользовательские пути проверяются API, integration и Playwright E2E-тестами.

@@ -33,7 +33,8 @@ Production-код MVP развивается в `main`. Ранний стати�
 | Данные и поиск | PostgreSQL, Full Text Search, `pg_trgm` |
 | Фоновые задачи | Celery, Redis |
 | Файлы | S3-совместимое объектное хранилище |
-| Почта | Yandex Cloud Postbox по SMTP, SPF/DKIM/DMARC |
+| Почта | Yandex Cloud Postbox API, SPF/DKIM/DMARC |
+| Аналитика | Self-hosted Umami, consent-based product events |
 | Развёртывание | Docker, managed PostgreSQL, reverse proxy/CDN, CI/CD |
 
 Подробнее — в [архитектурном решении](docs/architecture.md).
@@ -46,6 +47,7 @@ Production-код MVP развивается в `main`. Ранний стати�
 - [Основная модель данных](docs/data-model.md)
 - [API-контракт MVP](docs/api.md)
 - [Мониторинг и Sentry](docs/monitoring.md)
+- [Продуктовая аналитика Umami](docs/analytics.md)
 - [Frontend: запуск и соглашения](frontend/README.md)
 - [Production deployment](docs/deployment.md)
 

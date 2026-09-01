@@ -19,6 +19,7 @@ import { AuthenticatedHeader } from "@/components/layout/authenticated-header";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { Button } from "@/components/ui/button";
 import { ApiError, apiFetch } from "@/lib/api";
+import { trackAnalytics } from "@/lib/analytics";
 import {
   getMyApplications,
   getProjectApplications,
@@ -374,6 +375,9 @@ export default function ApplicationsPage() {
     setNotice("");
     try {
       await transitionApplication(application.id, status, note);
+      if (status !== "submitted") {
+        trackAnalytics("application status changed", { status });
+      }
       setNotice(
         tr({
           en: `Application marked as ${statusLabels[status].toLowerCase()}.`,

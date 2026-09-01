@@ -32,6 +32,7 @@ import {
 
 import { useLocale } from "@/components/i18n/locale-provider";
 import { ApiError } from "@/lib/api";
+import { trackAnalytics } from "@/lib/analytics";
 import { resolveMediaUrl } from "@/lib/media";
 import {
   type ChatMessage,
@@ -502,6 +503,10 @@ function ChatClient() {
         const conversation = await createConversation(
           conversationInputFor(newRecipient, body),
         );
+        trackAnalytics("conversation created", {
+          kind: conversation.kind,
+          project_context: Boolean(conversation.project),
+        });
         setConversations((current) => [
           conversation,
           ...current.filter((item) => item.id !== conversation.id),

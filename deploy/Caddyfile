@@ -88,3 +88,23 @@
 		format json
 	}
 }
+
+{$ANALYTICS_SITE_ADDRESS} {
+	encode zstd gzip
+
+	reverse_proxy umami:3000
+
+	header {
+		-Server
+		-X-Powered-By
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}

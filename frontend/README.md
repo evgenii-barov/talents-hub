@@ -25,6 +25,11 @@ The app is available at `http://localhost:3000`.
 
 `NEXT_PUBLIC_SITE_URL` must contain the public frontend origin in production (for example, `https://talents.example.org`). It is used for canonical URLs, `sitemap.xml`, `robots.txt` and structured data.
 
+`NEXT_PUBLIC_UMAMI_SCRIPT_URL` and `NEXT_PUBLIC_UMAMI_WEBSITE_ID` enable the optional self-hosted
+Umami tracker. Both are build-time values. The tracker still loads only after the visitor allows
+anonymous analytics, respects Do Not Track, excludes URL queries/fragments, and sends events through
+the typed adapter in `lib/analytics.ts`. Leave the Website ID empty to disable analytics safely.
+
 API-facing modules live in `lib/`. The `mocks/` directory contains presentation fixtures only and is not used as an application data store.
 
 ## UI components

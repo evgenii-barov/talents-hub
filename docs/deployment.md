@@ -2,19 +2,20 @@
 
 The production stack is defined in `compose.production.yaml`. It keeps application and monitoring
 databases/caches on internal Docker networks and publishes only Caddy ports 80/443. Caddy routes
-the public application, Django Admin, and GlitchTip on separate hosts.
+the public application, Django Admin, GlitchTip, and Umami on separate hosts.
 
 ## Before the first server start
 
 1. Copy `.env.production.example` to `.env.production`.
 2. Generate unique random values for `DJANGO_SECRET_KEY`, `POSTGRES_PASSWORD`,
-   `REDIS_PASSWORD`, `GLITCHTIP_SECRET_KEY`, and `GLITCHTIP_POSTGRES_PASSWORD`. When a password
+   `REDIS_PASSWORD`, `GLITCHTIP_SECRET_KEY`, `GLITCHTIP_POSTGRES_PASSWORD`, `UMAMI_APP_SECRET`,
+   `UMAMI_TWO_FACTOR_ENCRYPTION_KEY`, and `UMAMI_POSTGRES_PASSWORD`. When a password
    is used in a URL, URL-encode it there.
-3. Set `SITE_ADDRESS`, `WWW_SITE_ADDRESS`, `ADMIN_SITE_ADDRESS`, `PUBLIC_SITE_URL`,
-   `FRONTEND_URL`, `GLITCHTIP_DOMAIN`, allowed hosts, CORS, and CSRF origins. The `www` address
+3. Set `SITE_ADDRESS`, `WWW_SITE_ADDRESS`, `ADMIN_SITE_ADDRESS`, `ANALYTICS_SITE_ADDRESS`,
+   `PUBLIC_SITE_URL`, `FRONTEND_URL`, `GLITCHTIP_DOMAIN`, allowed hosts, CORS, and CSRF origins. The `www` address
    permanently redirects to `PUBLIC_SITE_URL`.
    For the Talents Hub production domains, the idempotent helper configures these hosts and
-   generates the GlitchTip secrets without printing them:
+   generates the GlitchTip and Umami secrets without printing them:
 
    ```bash
    bash scripts/configure_production_hosts.sh .env.production
@@ -44,7 +45,8 @@ the public application, Django Admin, and GlitchTip on separate hosts.
    docker compose --env-file .env.production -f compose.production.yaml exec backend python manage.py createsuperuser
    ```
 
-7. Create the GlitchTip administrator, then verify the public site, API, admin host, error host,
+7. Create the GlitchTip administrator, initialize Umami as described in
+   [Product analytics with self-hosted Umami](analytics.md), then verify the public site, API, admin host, error host,
    and a WebSocket chat connection:
 
    ```bash
@@ -52,10 +54,11 @@ the public application, Django Admin, and GlitchTip on separate hosts.
    ```
 
    Django Admin is available at `https://admin.<domain>/admin/`; `/admin/` on the public host
-   intentionally returns 404. GlitchTip is available at `https://errors.<domain>`.
+   intentionally returns 404. GlitchTip is available at `https://errors.<domain>` and Umami at
+   `https://insights.<domain>`. Change Umami's initial `admin` / `umami` password immediately.
 
-The frontend public URLs are build-time values. Rebuild the frontend whenever the public domain
-changes:
+The frontend public URLs and Umami Website ID are build-time values. Rebuild the frontend whenever
+the public domain or `UMAMI_WEBSITE_ID` changes:
 
 ```bash
 docker compose --env-file .env.production -f compose.production.yaml build frontend
@@ -82,8 +85,9 @@ docker compose --env-file .env.production -f compose.production.yaml up -d front
 
 ## Backups
 
-Run `scripts/backup-postgres.sh` from cron or a systemd timer. Copy the resulting encrypted backup
-off the application server and define retention. Test `scripts/restore-postgres.sh` on staging after
+Run `scripts/backup-postgres.sh` and `scripts/backup-umami.sh` from cron or a systemd timer. Copy the
+resulting encrypted backups off the application server and define retention. Test the matching
+restore scripts on staging after
 every material schema change and at least quarterly. A backup is not considered valid until restore
 has been tested.
 

@@ -7,6 +7,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { ApiError } from "@/lib/api";
 import { verifyEmail } from "@/lib/auth";
+import { trackAnalytics } from "@/lib/analytics";
 
 function VerifyEmailContent() {
   const router = useRouter();
@@ -23,6 +24,7 @@ function VerifyEmailContent() {
     }
     void verifyEmail(uid, token)
       .then(() => {
+        trackAnalytics("email verification completed");
         setMessage(tr("Email confirmed. Redirecting to your profile…", "E-mail подтверждён. Перенаправляем в профиль…"));
         window.setTimeout(() => router.replace("/profile/settings"), 800);
       })

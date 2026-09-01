@@ -8,6 +8,7 @@ import { SocialLoginButtons } from "@/components/auth/social-login-buttons";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api";
 import { signUp } from "@/lib/auth";
+import { trackAnalytics } from "@/lib/analytics";
 
 export default function SignupPage() {
   const { tr } = useLocale();
@@ -28,6 +29,7 @@ export default function SignupPage() {
     setSubmitting(true);
     try {
       await signUp(email, password);
+      trackAnalytics("account signup completed", { method: "email" });
       setSent(true);
     } catch (nextError) {
       setError(nextError instanceof ApiError ? nextError.message : tr("Could not create your account.", "Не удалось создать аккаунт."));

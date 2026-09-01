@@ -4,6 +4,7 @@ import { Cookie, ExternalLink, Settings2, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 import { useLocale } from "@/components/i18n/locale-provider";
+import { AnalyticsPreferences } from "@/components/privacy/analytics-preferences";
 
 export function CookiePolicyContent() {
   const { tr } = useLocale();
@@ -32,7 +33,7 @@ export function CookiePolicyContent() {
             )}
           </p>
           <p className="mt-5 font-inter text-xs font-semibold text-blue-200">
-            {tr("Last updated: July 28, 2026", "Обновлено: 28 июля 2026 года")}
+            {tr({ en: "Last updated: September 1, 2026", ru: "Обновлено: 1 сентября 2026 года", "zh-Hans": "更新日期：2026年9月1日" })}
           </p>
         </header>
 
@@ -42,16 +43,18 @@ export function CookiePolicyContent() {
             title={tr("Why we use cookies", "Зачем мы используем cookies")}
           >
             <p>
-              {tr(
-                "Cookies are small text records saved by your browser. Talents Hub currently uses only the records needed to authenticate users, protect forms from malicious requests, remember cookie acknowledgement, and keep the service working correctly.",
-                "Cookies — это небольшие текстовые записи, которые сохраняет браузер. Сейчас Talents Hub использует только записи, необходимые для авторизации пользователей, защиты форм от вредоносных запросов, запоминания согласия и корректной работы сервиса.",
-              )}
+              {tr({
+                en: "Cookies are small text records saved by your browser. Talents Hub uses the records needed to authenticate users, protect forms from malicious requests, remember privacy preferences, and keep the service working correctly.",
+                ru: "Cookies — это небольшие текстовые записи, которые сохраняет браузер. Talents Hub использует записи, необходимые для авторизации пользователей, защиты форм от вредоносных запросов, запоминания настроек конфиденциальности и корректной работы сервиса.",
+                "zh-Hans": "Cookie 是浏览器保存的小型文本记录。Talents Hub 使用这些记录来验证用户身份、防止恶意请求、记住隐私偏好并确保服务正常运行。",
+              })}
             </p>
             <p>
-              {tr(
-                "We do not currently use advertising or cross-site tracking cookies.",
-                "Сейчас мы не используем рекламные cookies и cookies для отслеживания действий на других сайтах.",
-              )}
+              {tr({
+                en: "We do not use advertising or cross-site tracking cookies. Optional self-hosted Umami analytics does not set tracking cookies and loads only after you allow it.",
+                ru: "Мы не используем рекламные cookies и cookies для отслеживания действий на других сайтах. Опциональная self-hosted аналитика Umami не устанавливает отслеживающие cookies и загружается только после вашего разрешения.",
+                "zh-Hans": "我们不使用广告 Cookie 或跨站跟踪 Cookie。可选的自托管 Umami 分析不会设置跟踪 Cookie，并且只会在您允许后加载。",
+              })}
             </p>
           </PolicySection>
 
@@ -87,7 +90,7 @@ export function CookiePolicyContent() {
                   />
                   <CookieRow
                     name="talents-hub-cookie-consent"
-                    purpose={tr("Remembers that you accepted this policy", "Запоминает принятие этой политики")}
+                    purpose={tr({ en: "Remembers your analytics preference", ru: "Запоминает выбранную настройку аналитики", "zh-Hans": "记住您的分析偏好" })}
                     lifetime={tr("1 year", "1 год")}
                   />
                 </tbody>
@@ -99,6 +102,34 @@ export function CookiePolicyContent() {
                 "Язык интерфейса сохраняется отдельно в локальном хранилище браузера под именем talents-hub-locale; это не cookie, и запись остаётся на устройстве до удаления.",
               )}
             </p>
+          </PolicySection>
+
+          <PolicySection
+            icon={ShieldCheck}
+            title={tr({ en: "Anonymous product analytics", ru: "Анонимная продуктовая аналитика", "zh-Hans": "匿名产品分析" })}
+          >
+            <p>
+              {tr({
+                en: "With permission, our self-hosted Umami instance records page paths, referrers, browser language, device information, approximate country, and selected product events. URL query strings, URL fragments, form contents, profile data, searches, files, and chat messages are excluded.",
+                ru: "С разрешения наша self-hosted система Umami сохраняет пути страниц, источники переходов, язык браузера, сведения об устройстве, приблизительную страну и выбранные продуктовые события. Параметры и фрагменты URL, содержимое форм, данные профилей, поисковые запросы, файлы и сообщения чата исключены.",
+                "zh-Hans": "经您允许，我们的自托管 Umami 会记录页面路径、来源页面、浏览器语言、设备信息、大致国家/地区以及选定的产品事件。URL 查询参数和片段、表单内容、个人资料数据、搜索内容、文件及聊天消息均不会收集。",
+              })}
+            </p>
+            <p>
+              {tr({
+                en: "The tracker respects the browser Do Not Track setting. We do not assign account IDs or send names and email addresses to Umami.",
+                ru: "Tracker учитывает настройку браузера Do Not Track. Мы не передаём в Umami идентификаторы аккаунтов, имена и адреса электронной почты.",
+                "zh-Hans": "跟踪器遵循浏览器的“请勿跟踪”设置。我们不会向 Umami 分配账户 ID，也不会发送姓名或电子邮箱地址。",
+              })}
+            </p>
+            <p>
+              {tr({
+                en: "Umami processes the IP address and browser user agent to derive a rotating anonymous session identifier; Talents Hub configures that salt to rotate monthly.",
+                ru: "Umami обрабатывает IP-адрес и сведения о браузере, чтобы получить сменяемый анонимный идентификатор сессии; в Talents Hub соль для него меняется ежемесячно.",
+                "zh-Hans": "Umami 会处理 IP 地址和浏览器 User-Agent，以生成定期轮换的匿名会话标识符；Talents Hub 将其盐值设置为每月轮换。",
+              })}
+            </p>
+            <AnalyticsPreferences />
           </PolicySection>
 
           <PolicySection

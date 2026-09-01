@@ -6,6 +6,7 @@ import { SessionGuard } from "@/components/auth/session-guard";
 import { defaultLocale, localeConfig } from "@/components/i18n/locales";
 import { UnifiedHeader } from "@/components/layout/unified-header";
 import { CookieConsent } from "@/components/privacy/cookie-consent";
+import { UmamiAnalytics } from "@/components/analytics/umami-analytics";
 import { FlashMessagesProvider } from "@/components/ui/flash-messages";
 import {
   absoluteUrl,
@@ -116,6 +117,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       className="h-full"
     >
       <body className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} min-h-full antialiased`}>
+        <UmamiAnalytics />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

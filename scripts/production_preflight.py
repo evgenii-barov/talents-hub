@@ -3,12 +3,14 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 from urllib.parse import urlparse
+from uuid import UUID
 
 
 REQUIRED = (
     "SITE_ADDRESS",
     "WWW_SITE_ADDRESS",
     "ADMIN_SITE_ADDRESS",
+    "ANALYTICS_SITE_ADDRESS",
     "PUBLIC_SITE_URL",
     "PUBLIC_API_URL",
     "POSTGRES_DB",
@@ -33,6 +35,13 @@ REQUIRED = (
     "GLITCHTIP_POSTGRES_PASSWORD",
     "GLITCHTIP_DATABASE_URL",
     "GLITCHTIP_DEFAULT_FROM_EMAIL",
+    "UMAMI_POSTGRES_DB",
+    "UMAMI_POSTGRES_USER",
+    "UMAMI_POSTGRES_PASSWORD",
+    "UMAMI_DATABASE_URL",
+    "UMAMI_APP_SECRET",
+    "UMAMI_TWO_FACTOR_ENCRYPTION_KEY",
+    "UMAMI_SCRIPT_URL",
 )
 
 
@@ -192,6 +201,56 @@ def validate(values: dict[str, str], *, strict_external: bool) -> tuple[list[str
         errors.append("GLITCHTIP_SECRET_KEY must be a random value of at least 50 characters")
     if "@glitchtip-db:" not in values.get("GLITCHTIP_DATABASE_URL", ""):
         errors.append("GLITCHTIP_DATABASE_URL must use the internal Docker host glitchtip-db")
+
+    analytics_address = values.get("ANALYTICS_SITE_ADDRESS", "").rstrip("/")
+    analytics_parsed = urlparse(
+        analytics_address if "://" in analytics_address else f"//{analytics_address}"
+    )
+    analytics_host = analytics_parsed.hostname
+    if not analytics_host:
+        errors.append("ANALYTICS_SITE_ADDRESS must contain a valid hostname for Caddy")
+    elif analytics_host in {public_host, admin_host, glitchtip_host}:
+        errors.append("ANALYTICS_SITE_ADDRESS must use a separate hostname")
+    if public_https and analytics_parsed.scheme != "https":
+        errors.append("ANALYTICS_SITE_ADDRESS must use HTTPS when PUBLIC_SITE_URL uses HTTPS")
+
+    umami_script_url = values.get("UMAMI_SCRIPT_URL", "")
+    umami_script_parsed = urlparse(umami_script_url)
+    if umami_script_parsed.scheme not in {"http", "https"} or not umami_script_parsed.netloc:
+        errors.append("UMAMI_SCRIPT_URL must be an absolute HTTP(S) URL")
+    elif umami_script_parsed.hostname != analytics_host:
+        errors.append("UMAMI_SCRIPT_URL must use the ANALYTICS_SITE_ADDRESS hostname")
+    elif umami_script_parsed.path != "/th.js":
+        errors.append("UMAMI_SCRIPT_URL must end with /th.js")
+    elif umami_script_parsed.params or umami_script_parsed.query or umami_script_parsed.fragment:
+        errors.append("UMAMI_SCRIPT_URL must not contain params, a query, or a fragment")
+
+    if "@umami-db:" not in values.get("UMAMI_DATABASE_URL", ""):
+        errors.append("UMAMI_DATABASE_URL must use the internal Docker host umami-db")
+    umami_secret = values.get("UMAMI_APP_SECRET", "")
+    if len(umami_secret) < 64 or len(set(umami_secret)) < 8:
+        errors.append("UMAMI_APP_SECRET must be a random value of at least 64 characters")
+    umami_2fa_key = values.get("UMAMI_TWO_FACTOR_ENCRYPTION_KEY", "")
+    if len(umami_2fa_key) != 64:
+        errors.append("UMAMI_TWO_FACTOR_ENCRYPTION_KEY must be exactly 64 hex characters")
+    else:
+        try:
+            int(umami_2fa_key, 16)
+        except ValueError:
+            errors.append("UMAMI_TWO_FACTOR_ENCRYPTION_KEY must contain only hex characters")
+
+    umami_website_id = values.get("UMAMI_WEBSITE_ID", "")
+    if umami_website_id:
+        try:
+            if str(UUID(umami_website_id)) != umami_website_id.lower():
+                raise ValueError
+        except ValueError:
+            errors.append("UMAMI_WEBSITE_ID must be a canonical UUID")
+    else:
+        warnings.append(
+            "UMAMI_WEBSITE_ID is empty; analytics stays disabled until the website is created "
+            "and the frontend is rebuilt"
+        )
 
     email_backend = values.get("DJANGO_EMAIL_BACKEND", "")
     if email_backend.endswith("console.EmailBackend"):

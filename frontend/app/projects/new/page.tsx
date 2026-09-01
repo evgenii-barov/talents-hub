@@ -7,6 +7,7 @@ import { AuthenticatedHeader } from "@/components/layout/authenticated-header";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { Button } from "@/components/ui/button";
 import { ApiError, apiFetch } from "@/lib/api";
+import { trackAnalytics } from "@/lib/analytics";
 import type { Language, TaxonomyReference } from "@/lib/contracts";
 import { getTaxonomy } from "@/lib/taxonomy";
 
@@ -244,6 +245,10 @@ export default function CreateProjectPage() {
           ),
         );
       }
+      trackAnalytics("project created", {
+        role_count: validRoles.length,
+        submission: sendToModeration ? "moderation" : "draft",
+      });
     } catch (error) {
       const detail =
         error instanceof ApiError && error.status === 403

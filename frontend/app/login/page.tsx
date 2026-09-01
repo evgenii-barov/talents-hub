@@ -10,6 +10,7 @@ import { SocialLoginButtons } from "@/components/auth/social-login-buttons";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api";
 import { signIn } from "@/lib/auth";
+import { trackAnalytics } from "@/lib/analytics";
 
 function getRedirectTarget(): Route {
   const requestedPath = new URLSearchParams(window.location.search).get("next");
@@ -34,6 +35,7 @@ export default function LoginPage() {
     try {
       const session = await signIn(email, password);
       if (!session.authenticated) throw new Error("Session was not created.");
+      trackAnalytics("account sign in completed", { method: "email" });
       router.replace(getRedirectTarget());
     } catch (nextError) {
       setError(nextError instanceof ApiError ? nextError.message : tr("Could not sign in. Please try again.", "Не удалось войти. Попробуйте ещё раз."));
